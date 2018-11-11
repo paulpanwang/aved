@@ -7,8 +7,8 @@ It's a command-line tool that can either take a series of sequential frames, or 
 ## Examples
 
 
-###Midwater 
-[Example output](doc/img/midwaterresults000003.jpg) 
+### Midwater 
+![Midwater results](doc/img/midwaterresults000003.jpg)
 
 A small example is available in the data/midwater folder. These images were captured around 300 meters depth from 
 an autonomous underwater vehicle at MBARI.  
@@ -36,8 +36,9 @@ docker run -e DISPLAY=host.docker.internal:0 -v $PWD:/data aved/salientvision --
 --mbari-mark-interesting=Outline --mbari-min-event-area=50 --rescale-input=960x540 --mbari-display-results --mbari-rescale-display=640x480
 ```
   
-###Benthic
+### Benthic
 
+![Benthic results](doc/img/benthicresults001010.jpg)
 ```bash 
 cd data/benthic
 tar -vzxf benthicdata.tar.gz
