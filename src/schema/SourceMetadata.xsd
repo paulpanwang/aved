@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="SourceMetadata">
+    <xs:complexType>
+      <xs:attribute name="SourceIdentifier" type="xs:string" use="optional"/>
+      <xs:attribute name="Owner" type="xs:string" use="optional"/>
+      <xs:attribute name="CreationDate" type="xs:dateTime" use="optional"/>
+      <xs:attribute name="Platform" type="xs:string" use="optional"/>
+      <xs:attribute name="DiveNumber" type="xs:string" use="optional"/>
+      <xs:attribute name="FrameRate" type="xs:float" use="optional"/>
+      <xs:attribute name="FrameWidth" type="xs:integer" use="optional"/>
+      <xs:attribute name="FrameHeight" type="xs:integer" use="optional"/>
+      <xs:attribute name="PixelWidth" type="xs:float" use="optional"/>
+      <xs:attribute name="PixelHeight" type="xs:float" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

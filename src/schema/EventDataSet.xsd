@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:include schemaLocation="./SourceMetadata.xsd"/>
+  <xs:include schemaLocation="./EventDetectionParameters.xsd"/>
+
+  <xs:element name="EventDataSet">
+    <xs:annotation>
+      <xs:documentation>Data file from saliency processing</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="SourceMetadata" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="EventDetectionParameters" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="FrameEventSet" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="CreationDate" type="xs:string" use="required"/>
+      <xs:attribute name="StartFrame" type="xs:integer" use="required"/>
+      <xs:attribute name="EndFrame" type="xs:integer" use="required"/>
+      <xs:attribute name="StartTimecode" type="xs:string" use="optional"/>
+      <xs:attribute name="EndTimecode" type="xs:string" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="FrameEventSet">
+    <xs:annotation>
+      <xs:documentation>A series of event objects</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="EventObject" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="FrameNumber" type="xs:integer" use="required"/>
+      <xs:attribute name="TimeCode" type="xs:string" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="EventObject">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="BoundingBox" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Classification" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="ObjectID" type="xs:string" use="required"/>
+      <xs:attribute name="StartFrameNumber" type="xs:integer" use="optional"/>
+      <xs:attribute name="StartTimecode" type="xs:string" use="optional"/>
+      <xs:attribute name="Saliency" type="xs:float" use="optional"/>
+      <xs:attribute name="CurrSize" type="xs:integer" use="optional"/>
+      <xs:attribute name="CurrX" type="xs:integer" use="optional"/>
+      <xs:attribute name="CurrY" type="xs:integer" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="BoundingBox">
+    <xs:complexType>
+      <xs:attribute name="LowerLeftX" type="xs:integer" use="required"/>
+      <xs:attribute name="LowerLeftY" type="xs:integer" use="required"/>
+      <xs:attribute name="UpperRightX" type="xs:integer" use="required"/>
+      <xs:attribute name="UpperRightY" type="xs:integer" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Classification">
+    <xs:complexType>
+      <xs:attribute name="ClassifierID" type="xs:string" use="required"/>
+      <xs:attribute name="ConfidenceValue" type="xs:float" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

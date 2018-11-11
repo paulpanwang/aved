@@ -1,0 +1,95 @@
+--phantomlinkformat GL/gl.h: -lGL -lXext -lX11 
+--phantomlinkformat GL/glu.h: 
+--phantomlinkformat GL/glut.h: 
+--phantomlinkformat IL/il.h: 
+--phantomlinkformat SDL/SDL.h: 
+--phantomlinkformat SDL/SDL_gfxPrimitives.h: 
+--phantomlinkformat SDL/SDL_image.h: 
+--phantomlinkformat SDL/SDL_gfxPrimitives.h: 
+--phantomlinkformat SDL/SDL_mixer.h: 
+--phantomlinkformat X11/XShm.h: -lXext -lX11 
+--phantomlinkformat X11/Xlib.h: -lXext -lX11 
+--phantomlinkformat X11/Xutil.h: -lXext -lX11 
+--phantomlinkformat X11/extensions/XShm.h: -lXext -lX11 
+--phantomlinkformat bzlib.h: -lbz2 
+--phantomlinkformat cmath: -lm
+--phantomlinkformat dc1394/control.h: 
+--phantomlinkformat eyelink/eyelink.h:    
+--phantomlinkformat ffmpeg/avcodec.h: -lavutil -lpng -lz
+--phantomlinkformat ffmpeg/avformat.h: -lavutil -lpng -lz
+--phantomlinkformat libavcodec/avcodec.h: -lavutil -lpng -lz
+--phantomlinkformat libavformat/avformat.h: -lavutil -lpng -lz
+--phantomlinkformat fftw3.h: 
+--phantomlinkformat gd.h: 
+--phantomlinkformat gsl/:  
+--phantomlinkformat gsl/gsl_cblas.h: 
+--phantomlinkformat blitz/: 
+--phantomlinkformat jni.h:
+--phantomlinkformat jpeglib.h: -ljpeg 
+--phantomlinkformat libdc1394/dc1394_control.h: 
+--phantomlinkformat libraw1394/raw1394.h: 
+--phantomlinkformat libspe.h: -lspe
+--phantomlinkformat libxml/: 
+--phantomlinkformat link-lapack: -llapack -lblas
+--phantomlinkformat linux/videodev.h:
+--phantomlinkformat lwpr/lwpr.h: 
+--phantomlinkformat mat.h: 
+--phantomlinkformat engine.h: 
+--phantomlinkformat matrix.h: 
+--phantomlinkformat math.h: -lm
+--phantomlinkformat mex.h:
+--phantomlinkformat mpi.h: 
+--phantomlinkformat ode/: 
+--phantomlinkformat omniORB4/CORBA.h: 
+--phantomlinkformat Ice/Ice.h: 
+--phantomlinkformat IceStorm/IceStorm.h: -lIceStorm
+--phantomlinkformat liveMedia/liveMedia.hh:  
+--phantomlinkformat opencv/:  
+--phantomlinkformat opencv2/: 
+--phantomlinkformat png.h: -lpng 
+--phantomlinkformat popt.h: 
+--phantomlinkformat pthread.h: -lpthread 
+--phantomlinkformat Qt/qapplication.h: 
+--phantomlinkformat Qt/QApplication: 
+--phantomlinkformat QtGui/: 
+--phantomlinkformat QtSql/: -lQtSql -lpq
+--phantomlinkformat Qt/QtXml: -lQtXml
+--phantomlinkformat Qt3Support/: -lQt3Support
+--phantomlinkformat qapplication.h: 
+--phantomlinkformat qwt/qwt_plot.h: 
+--phantomlinkformat sqlite3.h: -lsqlite3
+--phantomlinkformat readline/readline.h: -lreadline -ltermcap
+--phantomlinkformat opensurf/: 
+--phantomlinkformat tcl.h: 
+--phantomlinkformat tk.h: 
+--phantomlinkformat torch/: 
+--phantomlinkformat bluetooth/bluetooth.h: 
+--phantomlinkformat libcwiimote/wiimote.h: 
+--phantomlinkformat zlib.h: -lz
+--phantomlinkformat usb.h: -lusb
+--phantomlinkformat urg/urg.h: 
+--phantomlinkformat curses.h: -lncurses
+--phantomlinkformat ncurses.h: -lncurses
+--phantomlinkformat irobot-create.hh: 
+--phantomlinkformat SerialStream.h: 
+--phantomlinkformat SerialPort.h: 
+--phantomlinkformat xclib/xcliball.h: 
+--phantomlinkformat libsvm/svm.h: 
+--phantomlinkformat cuda.h: 
+--phantomlinkformat cuda_runtime_api.h: 
+--phantomlinkformat cuda_runtime.h: 
+--phantomlinkformat GL/glew.h: 
+--phantomlinkformat cutil.h: 
+--phantomlinkformat cutil_inline.h: 
+--phantomlinkformat boost/filesystem/: 
+--phantomlinkformat boost/program_options.hpp: 
+--phantomlinkformat boost/serialization/config.hpp: 
+--phantomlinkformat boost/regex.hpp: 
+--phantomlinkformat pqxx/: 
+--phantomlinkformat urg/UrgCtrl.h: -lurg -lurg_common -lurg_connection -lurg_connection_sdl -lurg_coordinate -lurg_geometry -lurg_monitor -lurg_system
+--phantomlinkformat libfreenect.h: 
+--phantomlinkformat XnCppWrapper.h:  
+--phantomlinkformat XnOpenNI.h: 
+--phantomlinkformat dlfcn.h: -ldl 
+--phantomlinkformat pcl/: 
+--phantomlinkformat pgr_stereocam.h: 

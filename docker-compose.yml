@@ -1,0 +1,21 @@
+version: '3.1'
+services:
+  visiondeps:
+    build:
+      context: .
+      dockerfile: Dockerfile.visiondeps
+    image: visiondeps 
+  salientvision:
+    build:
+      context: .
+      dockerfile: Dockerfile.salientvision
+    image: aved/salientvision
+    depends_on:
+      - visiondeps 
+  pascalvocvision:
+    build:
+      context: .
+      dockerfile: Dockerfile.pascalvocvision
+    image: aved/pascalvocvision
+    depends_on:
+      - visiondeps 

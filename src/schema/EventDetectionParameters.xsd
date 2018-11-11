@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="EventDetectionParameters">
+    <xs:complexType>
+      <xs:attribute name="CacheSize" type="xs:integer" use="required"/>
+      <xs:attribute name="MinEventArea" type="xs:integer" use="required"/>
+      <xs:attribute name="MaxEventArea" type="xs:integer" use="required"/>
+      <xs:attribute name="TrackingMode" type="xs:string" use="required"/>
+      <xs:attribute name="SegmentAlgorithm" type="xs:string" use="optional"/>
+      <xs:attribute name="SegmentAlgorithmInputImageType" type="xs:string" use="optional"/>
+      <xs:attribute name="SaliencyInputImageType" type="xs:string" use="optional"/>
+      <xs:attribute name="SaveNonInteresting" type="xs:boolean" use="optional"/>
+      <xs:attribute name="KeepWTABoring" type="xs:boolean" use="optional"/>
+      <xs:attribute name="MaxWTAPoints" type="xs:integer" use="optional"/>
+      <xs:attribute name="MaxEvolveTime" type="xs:integer" use="optional"/>
+      <xs:attribute name="MaxFramesEvent" type="xs:integer" use="optional"/>
+      <xs:attribute name="MinFramesEvent" type="xs:integer" use="optional"/>
+      <xs:attribute name="MaxCost" type="xs:integer" use="optional"/>
+      <xs:attribute name="MaskXPosition" type="xs:integer" use="optional"/>
+      <xs:attribute name="MaskYPosition" type="xs:integer" use="optional"/>
+      <xs:attribute name="MaskPath" type="xs:string" use="optional"/>
+      <xs:attribute name="MaskWidth" type="xs:integer" use="optional"/>
+      <xs:attribute name="MaskHeight" type="xs:integer" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+  

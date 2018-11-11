@@ -1,0 +1,21 @@
+FROM visiondeps 
+MAINTAINER Danelle Cline <dcline@mbari.org>
+
+# build target
+WORKDIR /code
+ADD src/ .
+RUN autoconf configure.ac > configure
+RUN chmod 0755 configure
+ENV CPPFLAGS '-I/usr/include/libxml2'
+ENV LDFLAGS '-lxml2'
+RUN ./configure --with-saliency=/code/saliency --with-xercesc=/usr/local/include/xercesc --prefix=/usr/local
+RUN make pascalvocvision 
+RUN make install
+
+# Clean up
+#RUN rm -rf /code
+#RUN rm -rf /var/lib/apt/lists/*
+
+# Setup environment and entrypoint
+ENV AVED_BIN '/usr/local/bin'
+ENTRYPOINT ["/usr/local/bin/pascalvocvision"]
