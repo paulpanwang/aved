@@ -15,11 +15,11 @@ reside in the same directory
 
 ![Midwater results](img/pascalvocvisionresults000001.jpg)
 
-A small example is available in the data/midwater folder. These images were captured around 300 meters depth from 
-an autonomous underwater vehicle at MBARI.  
+A small example is available in the data/midwater folder. These images were extracted a video clip recorded
+at approximately 300 meters depth from an autonomous underwater vehicle.  
 
 Data was trained with the [faster_rcnn_resnet101_coco_300_smallanchor_random_crop_image_mean_stride8](https://github.com/underh20cv/tfdetection/tree/master/models/faster_rcnn_resnet101_coco_300_smallanchor_random_crop_image_mean_stride8)
-model and run on still images first.
+model and run on each frame in the sequence first.
 
 First uncompress the example with:
  
@@ -29,6 +29,7 @@ tar -vzxf midwaterdata.tar.gz
 ```
 
 Run with
+
 ```bash
 
 docker run -e DISPLAY=host.docker.internal:0 -v $PWD:/data aved/pascalvocvision  \

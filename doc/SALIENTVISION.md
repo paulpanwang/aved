@@ -10,8 +10,8 @@ It's a command-line tool that can either take a series of sequential frames, or 
 ### Midwater 
 ![Midwater results](img/midwaterresults000003.jpg)
 
-A small example is available in the data/midwater folder. These images were captured around 300 meters depth from 
-an autonomous underwater vehicle at MBARI.  
+A small example is available in the data/midwater folder. These images were extracted a video clip recorded
+at approximately 300 meters depth from an autonomous underwater vehicle.  
 
 First uncompress the example with:
  
@@ -19,10 +19,11 @@ First uncompress the example with:
 cd data/midwater
 tar -vzxf midwaterdata.tar.gz
 ```
-Process first 5 frames, rescaled to 960x540,  save output to events.xml file and allow events less than 50 square pixels
+Process first 5 frames, run saliency detection very frame on rescaled 960x540 images, and save the output to events.xml file.
+Set minimum area to 50 square pixels
 ```bash 
 docker run -v $PWD:/data aved/salientvision --in=raster:/data/f#.png  --input-frames=1-5@1 --output-frames=1-5@1 \
---out=raster:/data/  --mbari-save-events-xml=/data/events.xml   --mbari-mark-interesting=Outline \
+--out=raster:/data/  --mbari-save-events-xml=/data/events.xml --mbari-saliency-dist=1 --mbari-mark-interesting=Outline \
 --mbari-min-event-area=50 --rescale-input=960x540
 ```
 
