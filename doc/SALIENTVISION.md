@@ -8,7 +8,7 @@ It's a command-line tool that can either take a series of sequential frames, or 
 
 
 ### Midwater 
-![Midwater results](doc/img/midwaterresults000003.jpg)
+![Midwater results](img/midwaterresults000003.jpg)
 
 A small example is available in the data/midwater folder. These images were captured around 300 meters depth from 
 an autonomous underwater vehicle at MBARI.  
@@ -38,7 +38,7 @@ docker run -e DISPLAY=host.docker.internal:0 -v $PWD:/data aved/salientvision --
   
 ### Benthic
 
-![Benthic results](doc/img/benthicresults001010.jpg)
+![Benthic results](img/benthicresults001010.jpg)
 ```bash 
 cd data/benthic
 tar -vzxf benthicdata.tar.gz
