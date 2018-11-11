@@ -1,4 +1,4 @@
-## Running salientvision
+## Running pascalvocvision
 
 This combines PASCAL Visual Object Class (VOC) formatted bounding box classifications with the object tracking system 
 in *salientvision*. This is still in the early stages of development, but showing promise as a combined top-down bottom-up approach.
@@ -11,7 +11,9 @@ reside in the same directory
 ## Examples
 
 
-###Midwater 
+### Midwater 
+
+![Midwater results](img/pascalvocvisionresults000001.jpg)
 
 A small example is available in the data/midwater folder. These images were captured around 300 meters depth from 
 an autonomous underwater vehicle at MBARI.  
@@ -22,28 +24,13 @@ First uncompress the example with:
 cd data/midwater
 tar -vzxf midwaterdata.tar.gz
 ```
-Process first 5 frames, saving output to events.xml file, contrast enhance the images and use those contrast enhanced
-images for segmenting
-```bash 
-docker run -v $PWD:/data avedac/salientvision /usr/local/bin/salientvision --in=raster:/data/f#.png \
---input-frames=1-5@1 --output-frames=1-5@1 --out=raster:/data/  --mbari-save-events-xml=/data/events.xml \
---mbari-contrast-enhance-results=true --mbari-segment-algorithm-input-image=ContrastEnhance
-```
 
-To see displayed intermediate results as it's running. This can be useful for debugging and understanding the algorithm.
-```bash 
-host + 127.0.0.1
-docker run -e DISPLAY=host.docker.internal:0 -v $PWD:/data avedac/salientvision /usr/local/bin/salientvision \
+Run with
+```bash
+
+docker run -e DISPLAY=host.docker.internal:0 -v $PWD:/data aved/pascalvocvision  \
 --in=raster:/data/f#.png --input-frames=1-5@1 --output-frames=1-5@1 --out=raster:/data/  \
---mbari-save-events-xml=/data/events.xml --mbari-midwater-video --mbari-display-results \
---mbari-rescale-display=640x480
-```
-  
-###Benthic
+ --mbari-save-events-xml=/data/events.xml --mbari-display-results  --mbari-mark-interesting=Outline \
+ --logverb=Info --rescale-input=960x540 --mbari-save-output --mbari-save-results
 
-
-There are many options in salientvision, some simple like setting the minimum and maximum allowable event areas.  See more [here](OPTIONS.md), or display the options with:
-
- ```bash 
-docker run avedac/salientvision --help
 ```
