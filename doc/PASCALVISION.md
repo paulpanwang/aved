@@ -18,6 +18,9 @@ reside in the same directory
 A small example is available in the data/midwater folder. These images were captured around 300 meters depth from 
 an autonomous underwater vehicle at MBARI.  
 
+Data was trained with the [faster_rcnn_resnet101_coco_300_smallanchor_random_crop_image_mean_stride8](https://github.com/underh20cv/tfdetection/tree/master/models/faster_rcnn_resnet101_coco_300_smallanchor_random_crop_image_mean_stride8)
+model and run on still images first.
+
 First uncompress the example with:
  
 ```bash 
