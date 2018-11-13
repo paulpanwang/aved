@@ -6,3 +6,6 @@ saliency/*
 src/target/*
 src/autom4te.cache/*
 src/config.*
+data/*.xml
+data/*.pn*
+data/*.sh
