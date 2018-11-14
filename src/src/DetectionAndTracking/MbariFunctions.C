@@ -140,16 +140,12 @@ list<BitObject> extractBitObjectsDisplay(nub::soft_ref<MbariResultViewer> &rv,
     list<BitObject> bos;
     BitObject largestBo;
     Segmentation segment;
-    Dims orgDims = image.getDims();
-    Dims targetRescaleDims = Dims(960,540);
-    int scaleW = round((float)targetRescaleDims.w()/(float)orgDims.w());
-    int scaleH = round((float)targetRescaleDims.h()/(float)orgDims.h());
-    float scale = (float) max(scaleW, scaleH);
-    scale = max(scale, 1.0f);
+    Dims orgDims = image.getDims(); 
     DetectionParameters dp = DetectionParametersSingleton::instance()->itsParameters;
     Image<byte> se = twofiftyfives(dp.itsCleanupStructureElementSize);
-    int minSizeScaled = int(minSize*scale);
-    int maxSizeScaled = int(maxSize*scale);
+    int minSizeScaled = minSize;
+    int maxSizeScaled = maxSize;
+    float scale = 1.0f;
 
     LINFO("Searching for bitobjects");
     // iterate on the graph scale to try to find bit objects
@@ -207,16 +203,18 @@ list<BitObject> extractBitObjectsDisplay(nub::soft_ref<MbariResultViewer> &rv,
                         *rptr++ = (*sptr++ == newColor) ? 1 : 0;
 
                     BitObject obj;
-                    Image<byte> dest = obj.reset(dilateImg(bitImg, se), Point2D<int>(rx, ry));
+                    //Image<byte> dest = obj.reset(dilateImg(bitImg, se), Point2D<int>(rx, ry));
+                    Image<byte> dest = obj.reset(bitImg, Point2D<int>(rx, ry));
 
                     float maxI, minI, avgI;
                     obj.setMaxMinAvgIntensity(luminance(scaledImage));
                     obj.getMaxMinAvgIntensity(maxI, minI, avgI);
                     Rectangle regionObj = obj.getBoundingBox();
                     bool found = false;
+                    int area = obj.getArea();
 
                     // if the object is in range in size, intensity and within the region
-                    if (obj.isValid() && obj.getArea() >= minSizeScaled && obj.getArea() <= maxSizeScaled
+                    if (obj.isValid() && area >= minSizeScaled && area <= maxSizeScaled
 							&& avgI > minIntensity
 							&& regionObj.left() + 1 > regionSearch.left()
                     		&& regionObj.top()  + 1 > regionSearch.top()
@@ -227,15 +225,14 @@ list<BitObject> extractBitObjectsDisplay(nub::soft_ref<MbariResultViewer> &rv,
 						if (obj.isValid()) {
 							obj.setMaxMinAvgIntensity(luminance(image));
 							obj.getMaxMinAvgIntensity(maxI, minI, avgI);
-							LINFO("found object size %d max size %d intensity %f", obj.getArea(),
-							                                                            maxSizeScaled, avgI);
+							LINFO("found object size %d max size %d intensity %f", area, maxSize, avgI);
 							bos.push_back(obj);
 							found = true;
 							numFound++;
 						 }
                     }
                     if (!found)
-						LDEBUG("object out of range in size %d minsize: %d maxsize: %d or "
+						LDEBUG("object out of range in rescaled size %d minsize: %d maxsize: %d or "
 									   "avg intensity %f min intensity %f "
 									   "or range %s not within %s ",
                     		           obj.getArea(), minSizeScaled, maxSizeScaled, avgI,
@@ -246,7 +243,7 @@ list<BitObject> extractBitObjectsDisplay(nub::soft_ref<MbariResultViewer> &rv,
 
                 }
         }//}
-
+            
         scale /= 2.0;
         minSizeScaled /= 4.0;
         maxSizeScaled /= 4.0;
@@ -354,7 +351,7 @@ list<BitObject> extractBitObjects(const Image<PixRGB <byte> >& image,
 						if (obj.isValid()) {
 							obj.setMaxMinAvgIntensity(luminance(image));
 							obj.getMaxMinAvgIntensity(maxI, minI, avgI);
-							LINFO("found object size %d max size %d intensity %f", obj.getArea(),
+							LDEBUG("found object size %d max size %d intensity %f", obj.getArea(),
 							                                                            maxSizeScaled, avgI);
 							bos.push_back(obj);
 							found = true;
@@ -362,7 +359,7 @@ list<BitObject> extractBitObjects(const Image<PixRGB <byte> >& image,
 						 }
                     }
                     if (!found)
-						LINFO("object out of range in size %d minsize: %d maxsize: %d or "
+						LDEBUG("object out of range in size %d minsize: %d maxsize: %d or "
 									   "avg intensity %f min intensity %f "
 									   "or range %s not within %s ",
                     		           obj.getArea(), minSizeScaled, maxSizeScaled, avgI,

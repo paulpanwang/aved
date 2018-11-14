@@ -85,7 +85,7 @@
 #include "Util/StringConversions.H"
 #include "Utils/Version.H"
 
-//#define DEBUG
+#define DEBUG
 
 #define MAX_INT32 2147483647
 

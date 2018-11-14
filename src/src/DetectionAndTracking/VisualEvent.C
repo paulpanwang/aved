@@ -67,7 +67,6 @@ VisualEvent::VisualEvent(Token tk, const DetectionParameters &parms, Image< PixR
   tokens.push_back(tk);
   ++counter;
   myNum = counter;
-  validendframe = endframe;
   vector< float > p;
   float mnoise = 0.1F;
   float pnoise = 0.0F;
@@ -230,8 +229,8 @@ Point2D<int> VisualEvent::predictedLocation()
 // ######################################################################
 bool VisualEvent::isTokenOk(const Token& tk) const
 {
-  LDEBUG("tk.frame_nr %d startframe %d endframe %d validendframe: %d itsState: %i", \
-          tk.frame_nr, startframe, endframe, validendframe, (int) itsState);
+  LDEBUG("tk.frame_nr %d startframe %d endframe %d itsState: %i", \
+          tk.frame_nr, startframe, endframe, (int) itsState);
   return ((tk.frame_nr - endframe) >= 1) && (itsState != CLOSED);
 }
 
@@ -249,8 +248,12 @@ float VisualEvent::getCostNN(const Token& tk)
   // plus distance between bounding box corners
   float cost2 = sqrt(pow((double)(r1.top() - r2.top()),2.0) +  pow((double)(r1.left() - r2.left()),2.0));
   float cost3 = sqrt(pow((double)(r1.bottomI() - r2.bottomI()),2.0) +
-					   pow((double)(r1.rightI() - r2.rightI()),2.0));
-  return cost1 + cost2 + cost3;
+					   pow((double)(r1.rightI() - r2.rightI()),2.0)); 
+  float cost = cost1 + cost2 + cost3;
+  LINFO("Event %i [%g;%g] nearest neighbor predicted location: [%g;%g] cost: %g maxCost: %g",
+         myNum, tk.location.x(), tk.location.y(), xTracker.getEstimate(),
+         yTracker.getEstimate(), cost, itsDetectionParms.itsMaxCost);
+  return cost;
 }
 
 // ######################################################################
@@ -261,7 +264,7 @@ float VisualEvent::getCostKalman(const Token& tk)
   float cost = (xTracker.getCost(tk.location.x()) +
                 yTracker.getCost(tk.location.y()));
 
-  LDEBUG("Event no. %i; obj location: %g, %g; predicted location: %g, %g; cost: %g maxCost: %g",
+  LINFO("Event %i [%g;%g] Kalman predicted location: [%g;%g] cost: %g maxCost: %g",
          myNum, tk.location.x(), tk.location.y(), xTracker.getEstimate(),
          yTracker.getEstimate(), cost, itsDetectionParms.itsMaxCost);
   return cost;
@@ -278,10 +281,11 @@ void VisualEvent::assignNoPrediction(const Token& tk, const Vector2D& foe)
 
   tokens.push_back(tk);
   tokens.back().bitObject.setClassProbability(class_name, class_prob);
+  tokens.back().location = Vector2D(tk.location.x(), tk.location.y()); 
 
   LINFO("Getting token for frame: %d actual location: %g %g", tk.frame_nr,
           tokens.back().prediction.x(), tokens.back().prediction.y());
-
+          
   // initialize token SMV to last token SMV
   // this is sort of a strange way to propagate values
   // need a bitObject copy operator?
@@ -299,7 +303,6 @@ void VisualEvent::assignNoPrediction(const Token& tk, const Vector2D& foe)
       min_size = tk.bitObject.getArea();
     }
   endframe = tk.frame_nr;
-  this->validendframe = validendframe;
 }
 
 // ######################################################################
@@ -328,15 +331,14 @@ bool VisualEvent::updateHoughTracker(nub::soft_ref<MbariResultViewer>&rv, uint f
 }
 
 // ######################################################################
-void VisualEvent::updatePrediction(const Token& tk, const Vector2D& foe, uint validendframe)
+void VisualEvent::updatePrediction(const Token& tk, const Vector2D& foe)
 {
 	double smv = tokens.back().bitObject.getSMV();
 	BitObject bo = tk.bitObject;
 	float class_prob = bo.getClassProbability();
 	string class_name = bo.getClassName();
-	LINFO("Updating prediction to %s %f", class_name.c_str(), class_prob);
-
-	// initialize token SMV to last token SMV, class and probability
+	LINFO("Updating prediction to %s %f at [%g;%g]", class_name.c_str(), class_prob, tk.location.x(), tk.location.y());
+ 
 	// TODO: put voting class here
 	tokens.back().bitObject.setClassProbability(class_name, class_prob);
 	tokens.back().bitObject.setSMV(smv);
@@ -367,15 +369,14 @@ void VisualEvent::updatePrediction(const Token& tk, const Vector2D& foe, uint va
 	  min_size = tk.bitObject.getArea();
 	}
 	endframe = tk.frame_nr;
-	this->validendframe = validendframe;
 }
 
 // ######################################################################
-void VisualEvent::assign(const Token& tk, const Vector2D& foe, uint validendframe)
+void VisualEvent::assign(const Token& tk, const Vector2D& foe)
 {
   ASSERT(isTokenOk(tk));
   tokens.push_back(tk);
-  updatePrediction(tk, foe, validendframe);
+  updatePrediction(tk, foe);
 }
 // ######################################################################
 bool VisualEvent::doesIntersect(const BitObject& obj, int frameNum) const

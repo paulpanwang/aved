@@ -89,7 +89,7 @@ parameters*/
 // Default graph based segment parameters
 #define DEFAULT_SEGMENT_GRAPH_PARAMETERS "0.75,500,50"
 // Default Kalman filter parameters for process noise and measurement noise
-#define DEFAULT_KALMAN_PARAMETERS "0.1, 0.0"
+#define DEFAULT_KALMAN_PARAMETERS "0.1, 10.0"
 // Default saliency input image type
 #define DEFAULT_SALIENCY_INPUT_TYPE SIRaw
 // Default structure element type to use for cleaning

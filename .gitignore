@@ -3,6 +3,7 @@
 .cproject
 .project
 saliency/*
+src/alldepends
 src/target/*
 src/autom4te.cache/*
 src/config.*

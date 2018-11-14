@@ -445,11 +445,11 @@ bool VisualEventSet::runHoughTracker(nub::soft_ref<MbariResultViewer>&rv,
       if (search) {
       	LINFO("Assigning %s to frame %d", tk.bitObject.getClassName().c_str(), tk.frame_nr);
       	tk.bitObject.computeSecondMoments();
-      	currEvent->assign(tk, imgData.foe, imgData.frameNum);
+      	currEvent->assign(tk, imgData.foe);
       }
       else {
       	LINFO("Updating prediction %s", tk.bitObject.getClassName().c_str());
-      	currEvent->updatePrediction(tk, imgData.foe, imgData.frameNum);
+      	currEvent->updatePrediction(tk, imgData.foe);
       }
 
     }
@@ -465,6 +465,12 @@ BitObject VisualEventSet::getBitObjectPrediction(const Token &evtToken, const Po
 	int shift_i = center.i - pred.i;
 	int shift_j = center.j - pred.j;
 	BitObject objPred; Image<byte> mask;
+	LINFO("Shifting object from [%d;%d] to [%d;%d]", center.i,center.j, pred.i, pred.j);
+	// if no shift, just return last bitobject
+	if (center == pred) {
+	    LINFO("No shift, returning last bitobject");
+	    return evtToken.bitObject;
+	}
 
 	// shift the last bitobject to the predicted location
 	mask = evtToken.bitObject.getObjectMask(byte(1));
@@ -481,6 +487,7 @@ BitObject VisualEventSet::getBitObjectPrediction(const Token &evtToken, const Po
 		}
 
 	objPred.reset(maskShifted);
+	LINFO("==================>shifted %d", objPred.getArea());
 	return objPred;
 }
 
@@ -621,7 +628,7 @@ bool VisualEventSet::runBaseTracker(nub::soft_ref<MbariResultViewer> rv,
   // adjust prediction if negative
   const Point2D<int> center =  Point2D<int>(max(pred.i,0), max(pred.j,0));
 
-  // now look which one fits best
+  // now find which one fits best
   list<BitObject> objs;
 
   // if need to find bit objects
@@ -637,53 +644,61 @@ bool VisualEventSet::runBaseTracker(nub::soft_ref<MbariResultViewer> rv,
   float lCost = -1.0F;
   int bestArea = 0;
   int area = 0;
+  float areaIntersect = 0.;
   float cost = -1.f;
   BitObject predObj = getBitObjectPrediction(evtToken, pred);
-  float predArea = (float) (predObj.getArea());
+  int predArea = 0;
   list<BitObject>::iterator cObj, lObj = objs.begin();
   for (cObj = objs.begin(); cObj != objs.end(); ++cObj) {
     list<BitObject>::iterator next = cObj;
     ++next;
-    area = (*cObj).getArea();
-    float areaIntersect = (float) predObj.intersect(*cObj) / predArea;
+    area = (*cObj).getArea(); 
 
 	switch (currEvent->getTrackerType()) {
 	case (VisualEvent::NN):
-		if (!search && currEvent->getNumberOfFrames() > 1)
-			cost = currEvent->getCostNN(Token(*cObj, imgData.frameNum - 1))/areaIntersect;
+		if (!search && currEvent->getNumberOfFrames() > 0)
+			cost = currEvent->getCostNN(Token(*cObj, imgData.frameNum - 1));
 		else
-			cost = currEvent->getCostNN(Token(*cObj, imgData.frameNum))/areaIntersect;
+			cost = currEvent->getCostNN(Token(*cObj, imgData.frameNum));
 	break;
 	case(VisualEvent::KALMAN):
-		if (!search && currEvent->getNumberOfFrames() > 1)
-			cost = currEvent->getCostKalman(Token(*cObj, imgData.frameNum - 1))/areaIntersect;
+		if (!search && currEvent->getNumberOfFrames() > 0)
+			cost = currEvent->getCostKalman(Token(*cObj, imgData.frameNum - 1));
 		else
-			cost = currEvent->getCostKalman(Token(*cObj, imgData.frameNum))/areaIntersect;
+			cost = currEvent->getCostKalman(Token(*cObj, imgData.frameNum));
 	break;
 	case(VisualEvent::HOUGH):
 		LFATAL("Cannot run base tracker for Hough tracker. Run Hough directly instead.");
 	break;
 	}
 
-	// if the first frame in the event, cost should be zero
-    if (!search && currEvent->getNumberOfFrames() == 1)
+	// if the first frame in the event, cost should be zero and no predicted area
+    if (currEvent->getNumberOfFrames() == 1) {
     	cost = 0.0F;
-
-	LINFO("cost %f max cost %f", cost, maxCost);
+    	predArea = 0;
+    }
+    else
+        predArea = predObj.getArea(); 
 
     if (cost < 0.0F) {
+      LINFO("Erasing object, cost too low");
       objs.erase(cObj);
       cObj = next;
       continue;
     }
 
     // if cost valid and a larger object or one with lower cost
-    if ((lCost == -1.0F) || (cost < maxCost && cost < lCost &&  area > bestArea)) {
+    if ((lCost == -1.0F) || (cost < maxCost && cost <= lCost)) {
       lCost = cost;
       lObj = cObj;
-      area = bestArea;
+      bestArea = area;
       found = true;
+      if (predArea > 0)
+        areaIntersect = (float) predObj.intersect(*cObj) / (float) predArea;
     }
+    
+	LINFO("lCost %g cost %g max cost %g intersection %g size %d pred size %d", lCost, cost, maxCost, 
+	                                                                            areaIntersect, bestArea, predArea);
   }
 
   // cost too high but skip if occluded since this shifts the centroid
@@ -715,11 +730,11 @@ bool VisualEventSet::runBaseTracker(nub::soft_ref<MbariResultViewer> rv,
     if (search) {
     	LINFO("Assigning %s", tk.bitObject.getClassName().c_str());
     	tk.bitObject.computeSecondMoments();
-    	currEvent->assign(tk, imgData.foe, imgData.frameNum);
+    	currEvent->assign(tk, imgData.foe);
     }
     else {
-      	LINFO("Updating prediction %s", tk.bitObject.getClassName().c_str());
-    	currEvent->updatePrediction(tk, imgData.foe, imgData.frameNum);
+      	LINFO("Updating prediction %s intersection %f", tk.bitObject.getClassName().c_str(), areaIntersect);
+    	currEvent->updatePrediction(tk, imgData.foe);
     }
   }
   else
@@ -932,6 +947,8 @@ bool VisualEventSet::resetIntersect(Image< PixRGB<byte> >& img, BitObject& obj, 
 									className.c_str(), classProb);
 					Token newToken = evtToken;
 					newToken.frame_nr = frameNum;
+					Image<byte> mask = obj.getObjectMask(byte(1)) + predObj.getObjectMask(byte(1));
+					obj.reset(mask);
 					newToken.bitObject = obj;
 					(*cEv)->assignNoPrediction(newToken, curFOE);
 				}

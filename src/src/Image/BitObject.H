@@ -231,8 +231,7 @@ public:
   //! draw the bounding box of this BitObject into img with color
   template <class T_or_RGB>
   void drawBoundingBox(Image<T_or_RGB>&, 
-                       const T_or_RGB& color,
-float opacity = 1.0F);
+                       const T_or_RGB& color, float opacity = 1.0F);
  
   //! draw this BitObject according to mode
   template <class T_or_RGB>

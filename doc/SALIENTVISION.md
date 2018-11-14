@@ -24,7 +24,27 @@ Set minimum area to 50 square pixels
 ```bash 
 docker run -v $PWD:/data aved/salientvision --in=raster:/data/f#.png  --input-frames=1-5@1 --output-frames=1-5@1 \
 --out=raster:/data/  --mbari-save-events-xml=/data/events.xml --mbari-saliency-dist=1 --mbari-mark-interesting=Outline \
---mbari-min-event-area=50 --rescale-input=960x540
+--mbari-min-event-area=50 --rescale-input=960x540 
+
+#!/bin/bash
+#export DISPLAY=localhost:0.0
+#xhost + localhost
+#DISPLAY=docker.for.mac.localhost:0
+#DISPLAY=host.docker.internal:0
+#DISPLAY=localhost:0
+
+docker run -e DISPLAY=docker.for.mac.localhost:0 -v $PWD:/data aved/salientvision /usr/local/bin/salientvision \
+--in=raster:/data/f#.png --input-frames=1000-1010@1 --output-frames=1000-1010@1 --out=raster:/data/  \
+ --mbari-save-events-xml=/data/events.xml --mbari-display-results --mbari-save-output \
+ --mbari-saliency-dist=0  \
+ --mbari-mark-interesting=Outline \
+ --mbari-remove-overlapping-detections=true \
+ --mbari-mask-lasers \
+ --logverb=Info  \
+ --mbari-tracking-mode=KalmanFilter  \
+ --rescale-input=960x540 \
+
+
 ```
 
 

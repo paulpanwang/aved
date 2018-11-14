@@ -105,7 +105,7 @@ std::list<BitObject> ObjectDetection::run( nub::soft_ref<MbariResultViewer> rv,
         Rectangle foaregion = boFOA.getBoundingBox();
         Point2D<int> center = boFOA.getCentroid();
         Dims d = segmentInImg.getDims();
-        Dims segmentDims = Dims((float)foaregion.width()*2.,(float)foaregion.height()*2.);
+        Dims segmentDims = Dims((float)foaregion.width()*4.,(float)foaregion.height()*4.);
         Dims searchDims = Dims((float)foaregion.width()*2.,(float)foaregion.height()*2.);
         Rectangle searchRegion = Rectangle::centerDims(center, searchDims);
         searchRegion = searchRegion.getOverlap(Rectangle(Point2D<int>(0, 0), segmentInImg.getDims() - 1));

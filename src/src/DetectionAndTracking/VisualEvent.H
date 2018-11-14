@@ -96,10 +96,10 @@ public:
   float getCostNN(const Token& tk);
 
   //! assign tk to this event, use foe as the focus of expansion
-  void assign(const Token& tk, const Vector2D& foe,  uint validendframe);
+  void assign(const Token& tk, const Vector2D& foe);
 
   //! updates prediction for the latest assigned token
-  void updatePrediction(const Token& tk, const Vector2D& foe, uint validendframe);
+  void updatePrediction(const Token& tk, const Vector2D& foe);
 
   //! assign tk to this event, use foe as the focus of expansion, don't update the prediction
   void assignNoPrediction(const Token& tk, const Vector2D& foe);
@@ -242,7 +242,6 @@ private:
   std::vector<Token> tokens;
   uint startframe;
   uint endframe;
-  uint validendframe;
   int max_size,min_size;
   uint maxsize_framenr;
   // ! VisualEvent state
@@ -309,12 +308,8 @@ inline uint VisualEvent::getEventNum() const
 // ######################################################################
 inline uint VisualEvent::getStartFrame() const
 { return startframe; }
-
-// ######################################################################
-inline uint VisualEvent::getValidEndFrame() const
-{ return validendframe; }
-
-  // ######################################################################
+  
+ // ######################################################################
 inline uint VisualEvent::getEndFrame() const
 { return endframe; }
 // ######################################################################

@@ -343,11 +343,11 @@ const ModelOptionDef OPT_MDPsegmentGraphParameters =
 const ModelOptionDef OPT_MDPXKalmanFilterParameters =
   { MODOPT_ARG_STRING, "MDPXKalmanFilterParameters", &MOC_MBARI, OPTEXP_MRV,
     "X direction Kalman filter parameters, in the order process noise, measurement noise",
-    "mbari-x-kalman-parameters", '\0', "process noise, measurement noise", "0.1,0.0" };
+    "mbari-x-kalman-parameters", '\0', "process noise, measurement noise", "0.1,10.0" };
 const ModelOptionDef OPT_MDPYKalmanFilterParameters =
   { MODOPT_ARG_STRING, "MDPYKalmanFilterParameters", &MOC_MBARI, OPTEXP_MRV,
     "Y direction Kalman filter parameters, in the order process noise, measurement noise",
-    "mbari-y-kalman-parameters", '\0', "process noise, measurement noise", "0.1,0.0" };
+    "mbari-y-kalman-parameters", '\0', "process noise, measurement noise", "0.1,10.0" };
 const ModelOptionDef OPT_MDPcolorSpace = {
    MODOPT_ARG(ColorSpaceType), "MDPcolorSpace", &MOC_MBARI, OPTEXP_MRV,
    "Input image color space. Used to determine whether to compute saliency on color channels or not",
