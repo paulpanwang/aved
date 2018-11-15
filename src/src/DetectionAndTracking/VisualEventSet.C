@@ -487,7 +487,6 @@ BitObject VisualEventSet::getBitObjectPrediction(const Token &evtToken, const Po
 		}
 
 	objPred.reset(maskShifted);
-	LINFO("==================>shifted %d", objPred.getArea());
 	return objPred;
 }
 
@@ -832,50 +831,11 @@ void VisualEventSet::initiateEvents(list<BitObject>& bos,
 	  if (!resetIntersect(imgData.img, *biter, imgData.foe, imgData.frameNum))
 		 sobjs.push_back(*biter);
   }
-
-  bool found = false;
-  int minSize = p.itsMinEventArea;
-  if (p.itsRemoveOverlappingDetections) {
-    LINFO("Removing overlapping detections");
-    // loop until we find all non-overlapping objects starting with the smallest
-    while (!sobjs.empty()) {
-
-        std::list<BitObject>::iterator biter, siter, smallest;
-        // find the smallest object
-        smallest = sobjs.begin();
-        for (siter = sobjs.begin(); siter != sobjs.end(); ++siter)
-            if (siter->getArea() < minSize) {
-                minSize = siter->getArea();
-                smallest = siter;
-            }
-
-        // does the smallest object intersect with any of the already stored ones
-        found = true;
-        for (biter = sobjsKeep.begin(); biter != sobjsKeep.end(); ++biter) {
-            if (smallest->isValid() && biter->isValid() && biter->doesIntersect(*smallest)) {
-                // no need to store intersecting objects -> get rid of smallest
-                // and look for the next smallest
-                sobjs.erase(smallest);
-                found = false;
-                break;
-            }
-        }
-
-        if (found && smallest->isValid())
-            sobjsKeep.push_back(*smallest);
-    }
-  }
-  else {
-        LINFO("Keeping all valid %lu bitobject(s)", sobjs.size());
-        std::list<BitObject>::iterator biter;
-        for (biter = sobjs.begin(); biter != sobjs.end(); ++biter)
-            sobjsKeep.push_back(*biter);
-  }
-
+ 
   // now go through all the remaining BitObjects and create new events for them
   list<BitObject>::iterator currObj;
   Point2D<int> center;
-  for (currObj = sobjsKeep.begin(); currObj != sobjsKeep.end(); ++currObj)
+  for (currObj = sobjs.begin(); currObj != sobjs.end(); ++currObj)
     {
 	  FeatureCollection::Data feature;
 	  if (itsSaveEventFeatures)
@@ -885,9 +845,9 @@ void VisualEventSet::initiateEvents(list<BitObject>& bos,
                           feature.featureHOG3, feature.featureHOG8);
       itsEvents.push_back(new VisualEvent(token, itsDetectionParms, imgData.img));
       center = currObj->getCentroid();
-      LINFO("assigning object found at [%d;%d] area: %i to new event %i frame %d class %s prob %f",currObj->getArea(),
-            center.i, center.j, itsEvents.back()->getEventNum(), imgData.frameNum, currObj->getClassName().c_str(),
-            currObj->getClassProbability());
+      LINFO("assigning object found at [%d;%d] area: %i to new event %i frame %d class %s prob %f",
+            center.i, center.j, currObj->getArea(), itsEvents.back()->getEventNum(), imgData.frameNum, 
+            currObj->getClassName().c_str(), currObj->getClassProbability());
     }
 }
 

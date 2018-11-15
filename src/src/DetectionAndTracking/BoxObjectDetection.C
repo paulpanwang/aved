@@ -1,13 +1,3 @@
-//============================================================================
-// Name        : BoxObjectDetection.C
-// Author      : Mayra Ochoa & Raymond Esteybar
-// Version     :
-// Copyright   :
-// Description : Alternate version of ObjectDetection.H but BoxObjectDetection.H
-//				 incorporates the Rectangles instead of Winner objects
-//				 from .xml.
-//============================================================================
-
 #include "Component/OptionManager.H"
 #include "Component/ParamClient.H"
 #include "DetectionAndTracking/MbariFunctions.H"

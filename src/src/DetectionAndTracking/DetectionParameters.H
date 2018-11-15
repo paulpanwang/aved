@@ -46,7 +46,7 @@ parameters*/
 #include <cstdio>
 #include <iostream>
 // default minimum intersection for event matching
-#define MIN_INTERSECTION 0.6F
+#define MIN_INTERSECTION 0.4F
 // default size for Hough rescaling
 #define DEFAULT_HOUGH_WIDTH 480
 #define DEFAULT_HOUGH_HEIGHT 270
