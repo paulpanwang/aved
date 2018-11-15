@@ -133,7 +133,7 @@ std::list<BitObject> ObjectDetection::run( nub::soft_ref<MbariResultViewer> rv,
     LINFO("Found %lu bitobject(s)", bosUnfiltered.size());
 
     bool found = false;
-    int minSize = p.itsMinEventArea;
+    int minSize = p.itsMaxEventArea;
     if (p.itsRemoveOverlappingDetections) {
         LINFO("Removing overlapping detections");
         // loop until we find all non-overlapping objects starting with the smallest
