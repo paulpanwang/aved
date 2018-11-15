@@ -95,38 +95,9 @@ bool isGrayscale(const Image<PixRGB<byte> >& src)
 
   return false;
 }
-
+ 
 // ######################################################################
-BitObject extractBitObject( const Image<PixRGB <byte> >& image,
-                            const Point2D<int> seed,
-                            Rectangle region,
-                            const int minSize,
-                            const int maxSize) {
-
-    Mat input = Mat(image.getHeight(), image.getWidth(), CV_8UC3, (char*)image.getArrayPtr()).clone();
-    Rect rectangle(region.left(), region.top(), region.width(), region.height());
-    Mat result; //segmentation result (4 possible values)
-    Mat fgmdl, bgmdl; // the models (internally used)
-    grabCut(input, result, rectangle, fgmdl, bgmdl, 5, GC_INIT_WITH_RECT);
-
-    // convert to image and create bit object from it
-    Mat mask(input.size(), CV_8UC1,Scalar(0));
-    mask = result ==  (GC_PR_FGD | GC_FGD) ; //compare and set the results to 255
-	IplImage boimage = mask;
-    Image<byte> output((const byte*)mask.data, mask.cols, mask.rows);
-    BitObject bo(output, seed, byte(255));
-
-    if (bo.isValid()) {
-        LINFO("Extracted BitObject size %d", bo.getArea());
-        return bo;
-    }
-    else
-        bo.freeMem(); //invalidate the object
-
-    return bo;
-}
-// ######################################################################
-list<BitObject> extractBitObjectsDisplay(nub::soft_ref<MbariResultViewer> &rv,
+list<BitObject> extractBitObjectsGraphcut(nub::soft_ref<MbariResultViewer> &rv,
         const uint frameNum,
         const Image<PixRGB <byte> >& image,
         const Point2D<int> seed,
@@ -252,132 +223,8 @@ list<BitObject> extractBitObjectsDisplay(nub::soft_ref<MbariResultViewer> &rv,
     LINFO("Found %lu total bit objects", bos.size());
     return bos;
 }
-
-// ######################################################################
-list<BitObject> extractBitObjects(const Image<PixRGB <byte> >& image,
-        const Point2D<int> seed,
-        const Rectangle searchRegion,
-        const Rectangle segmentRegion,
-        const int minSize,
-        const int maxSize,
-        const float minIntensity,
-        const int iterations)
-{
-    list<BitObject> bos;
-    BitObject largestBo;
-    Segmentation segment;
-    Dims orgDims = image.getDims();
-    Dims targetRescaleDims = Dims(960,540);
-    int scaleW = round((float)targetRescaleDims.w()/(float)orgDims.w());
-    int scaleH = round((float)targetRescaleDims.h()/(float)orgDims.h());
-    float scale = (float) max(scaleW, scaleH);
-    scale = max(scale, 1.0f);
-    DetectionParameters dp = DetectionParametersSingleton::instance()->itsParameters;
-    Image<byte> se = twofiftyfives(dp.itsCleanupStructureElementSize);
-
-    LINFO("Searching for bitobjects");
-    // iterate on the graph scale to try to find bit objects
-    for (int i = 0; i < iterations; i++) {
-		Dims d = orgDims*scale;
-    	Image<PixRGB <byte> > scaledImage = rescale(image, d);
-        Rectangle regionSearch = searchRegion*scale;
-        Rectangle regionSegment = segmentRegion*scale;
-        regionSearch = regionSearch.getOverlap(Rectangle(Point2D<int>(0, 0), scaledImage.getDims() - 1));
-        regionSegment = regionSegment.getOverlap(Rectangle(Point2D<int>(0, 0), scaledImage.getDims() - 1));
-        int minSizeScaled = int(minSize*scale);
-        int maxSizeScaled = int(maxSize*scale);
-        LDEBUG("region segment graph cut: %s",toStr(regionSegment).data());
-        LDEBUG("region search graph cut: %s",toStr(regionSearch).data());
-        LDEBUG("min area: %d max area: %d", minSizeScaled, maxSizeScaled);
-
-        //for (int j = 1; j < 2; j++) {
-        int j=1;
-        Image< PixRGB<byte> > graphBitImg = segment.runGraph(scaledImage, regionSegment, 1.0/(float)j);
-
-        list< PixRGB<byte> > seedColors;
-        Image<byte> labelImg(graphBitImg.getDims(), ZEROS);
-        Image<byte> bitImg(graphBitImg.getDims(), ZEROS);
-        bool found;
-        uint numFound = 0;
-
-        if (!regionSearch.isValid() || !regionSegment.isValid())
-            break;
-
-        // get the bit object(s) in the search region
-        for (int ry = regionSearch.top(); ry <= regionSearch.bottomO(); ++ry)
-            for (int rx = regionSearch.left(); rx <= regionSearch.rightO(); ++rx) {
-                PixRGB<byte> newColor = graphBitImg.getVal(Point2D<int>(rx,ry));
-                found = true;
-
-                // check if not a new seed color
-                list< PixRGB<byte> >::const_iterator iter = seedColors.begin();
-                while (iter != seedColors.end()) {
-                    PixRGB<byte> colorSeed = (*iter);
-                    // found existing seed color
-                    if (colorSeed == newColor) {
-                        found = false;
-                        break;
-                        }
-                    iter++;
-                }
-
-                // found a new seed color
-                if (found) {
-                    seedColors.push_back(newColor);
-                    // create a binary representation with the 1 equal to the
-                    // color at the center of the seed everything else 0
-                    Image< PixRGB<byte> >::const_iterator sptr = graphBitImg.begin();
-                    Image<byte>::iterator rptr = bitImg.beginw();
-                    while (sptr != graphBitImg.end())
-                        *rptr++ = (*sptr++ == newColor) ? 1 : 0;
-
-                    BitObject obj;
-                    Image<byte> dest = obj.reset(dilateImg(bitImg, se), Point2D<int>(rx, ry));
-
-                    float maxI, minI, avgI;
-                    obj.setMaxMinAvgIntensity(luminance(scaledImage));
-                    obj.getMaxMinAvgIntensity(maxI, minI, avgI);
-                    Rectangle regionObj = obj.getBoundingBox();
-                    bool found = false;
-
-                    // if the object is in range in size, intensity and within the region
-                    if (obj.isValid() && obj.getArea() >= minSizeScaled && obj.getArea() <= maxSizeScaled
-							&& avgI > minIntensity
-							&& regionObj.left() + 1 > regionSearch.left()
-                    		&& regionObj.top()  + 1 > regionSearch.top()
-							&& regionObj.rightI() - 1 < regionSearch.rightI()
-                    		&& regionObj.bottomI() - 1 < regionSearch.bottomI()) {
-                    	obj.reset(rescale(dest, orgDims));
-						if (obj.isValid()) {
-							obj.setMaxMinAvgIntensity(luminance(image));
-							obj.getMaxMinAvgIntensity(maxI, minI, avgI);
-							LDEBUG("found object size %d max size %d intensity %f", obj.getArea(),
-							                                                            maxSizeScaled, avgI);
-							bos.push_back(obj);
-							found = true;
-							numFound++;
-						 }
-                    }
-                    if (!found)
-						LDEBUG("object out of range in size %d minsize: %d maxsize: %d or "
-									   "avg intensity %f min intensity %f "
-									   "or range %s not within %s ",
-                    		           obj.getArea(), minSizeScaled, maxSizeScaled, avgI,
-									   minIntensity, toStr(regionObj).data(),
-									   toStr(regionSearch).data());
-
-
-
-                }
-        }//}
-        scale = scale * 0.50;
-    }
-
-    LINFO("Found %lu total bit objects", bos.size());
-    return bos;
-}
-
-list<BitObject> extractBitObjects(const Image<byte>& bImg,
+ 
+list<BitObject> extractBitObjectsGray(const Image<byte>& bImg,
         Rectangle region,
         const int minSize,
         const int maxSize) {
@@ -415,8 +262,48 @@ list<BitObject> extractBitObjects(const Image<byte>& bImg,
 }
 
 // ######################################################################
+list <BitObject> removeOverlappingObjects(list<BitObject> &bosUnfiltered)
+{
+   // Remove overlapping detections
+    bool found = false;
+	DetectionParameters p = DetectionParametersSingleton::instance()->itsParameters;
+    int minSize = p.itsMinEventArea;
+    list<BitObject> bosFiltered;
+    LINFO("Removing overlapping detections");
+    // loop until we find all non-overlapping objects starting with the smallest
+    while (!bosUnfiltered.empty()) {
 
-list<BitObject> getSalientObjects(const Image< PixRGB<byte> >& graphBitImg, const list<Winner> &winners) {
+        std::list<BitObject>::iterator biter, siter, smallest;
+        // find the smallest object
+        smallest = bosUnfiltered.begin();
+        for (siter = bosUnfiltered.begin(); siter != bosUnfiltered.end(); ++siter)
+            if (siter->getArea() < minSize) {
+                minSize = siter->getArea();
+                smallest = siter;
+            }
+
+        // does the smallest object intersect with any of the already stored ones
+        found = true;
+        for (biter = bosFiltered.begin(); biter != bosFiltered.end(); ++biter) {
+            if (smallest->isValid() && biter->isValid() && biter->doesIntersect(*smallest)) {
+                // no need to store intersecting objects -> get rid of smallest
+                // and look for the next smallest
+                bosUnfiltered.erase(smallest);
+                found = false;
+                break;
+            }
+        }
+
+        if (found && smallest->isValid())
+            bosFiltered.push_back(*smallest);
+    }
+return bosFiltered; 
+        
+}
+// ######################################################################
+
+list<BitObject> getSalientObjects(nub::soft_ref<MbariResultViewer> &rv,
+        const uint frameNum, const Image< PixRGB<byte> >& graphBitImg, const list<Winner> &winners) {
     const int rectRad = 5;
     DetectionParameters p = DetectionParametersSingleton::instance()->itsParameters;
     list<Winner>::const_iterator iter = winners.begin();
@@ -436,7 +323,8 @@ list<BitObject> getSalientObjects(const Image< PixRGB<byte> >& graphBitImg, cons
         LDEBUG("Extracting bit objects from winning point: %d %d/region %s minSize %d maxSize %d", \
         winner.i, winner.j, convertToString(region).c_str(), p.itsMinEventArea, p.itsMaxEventArea);
 
-        list<BitObject> sobjs = extractBitObjects(graphBitImg, winner, region, region, p.itsMinEventArea, p.itsMaxEventArea);
+        list<BitObject> sobjs = extractBitObjectsGraphcut(rv, frameNum, graphBitImg, winner, region, region, 
+                                                    p.itsMinEventArea, p.itsMaxEventArea);
 
 	    LDEBUG("Found bitobject(s) in graphBitImg: %ld", sobjs.size());
 
@@ -645,8 +533,9 @@ list<BitObject> getFOAObjects(const list<Winner> &winners, const Image< byte >& 
 
 // ######################################################################
 
-list<BitObject> getSalientObjects(const Image< PixRGB<byte> >& graphBitImg, const Image< byte >& bitImg,
- const list<Winner> &winners, const Image< byte >& mask) {
+list<BitObject> getSalientObjects(nub::soft_ref<MbariResultViewer> &rv,
+        const uint frameNum, const Image< PixRGB<byte> >& graphBitImg, const Image< byte >& bitImg,
+        const list<Winner> &winners, const Image< byte >& mask) {
     // this should be 2^(smlev - 1)
     const int rectRadBin = 2;
     const int rectRadGraph = 2;
@@ -685,12 +574,13 @@ list<BitObject> getSalientObjects(const Image< PixRGB<byte> >& graphBitImg, cons
         // get region from the graphcut using the foa mask as a guiding rectangle
         LINFO("Extracting bit objects from winning point %i: %d %d/region %s minSize %d maxSize %d", \
                 i, winner.i, winner.j, convertToString(boFOA.getBoundingBox()).c_str(), minArea, maxArea);
-        sobjsGraph = extractBitObjects(graphBitImgMasked, winner, boFOA.getBoundingBox(), boFOA.getBoundingBox(), minArea, maxArea);
+        sobjsGraph = extractBitObjectsGraphcut(rv, frameNum, graphBitImgMasked, winner, boFOA.getBoundingBox(), 
+                                            boFOA.getBoundingBox(), minArea, maxArea);
         LINFO("Found bitobject(s) in graphcut img: %ld", sobjsGraph.size());
 
         LINFO("Extracting bit objects from winning point %i: %d %d/region %s minSize %d maxSize %d", \
             i, winner.i, winner.j, convertToString(regionBin).c_str(), minArea, maxArea);
-        sobjsBin = extractBitObjects(bitImgMasked, regionBin, minArea,  maxArea);
+        sobjsBin = extractBitObjectsGray(bitImgMasked, regionBin, minArea,  maxArea);
         LINFO("Found bitobject(s) in graphBitImg: %ld", sobjsBin.size());
 
         BitObject bo;
@@ -927,58 +817,7 @@ Image< PixRGB<byte > > showAllWinners(const list<Winner> winlist, const Image< P
     }
     return result;
 }
-
-//// ######################################################################
-//
-//Image< PixRGB<byte > > showAllWinners(const list<Rectangle> reclist, const Image< PixRGB<byte > > & img, int maxDist) {
-//    Image< PixRGB<byte > > result = img;
-//    list<Winner>::const_iterator currWinner;
-//    const PixRGB<byte> color = COL_CANDIDATE;
-//    int i=0;
-//
-//    for (currWinner = winlist.begin(); currWinner != winlist.end(); ++currWinner) {
-//        Point2D<int> ctr = (*currWinner).getWTAwinner().p;
-//        BitObject bo = (*currWinner).getBitObject();
-//        Point2D<int> offset = Point2D<int>(2, 2);
-//        //drawCircle(result, ctr, maxDist, red);
-//         // write the number of each winner
-//        //string numText = toStr(i);
-//
-//        // write the text and create the overlay image
-//        ostringstream ss;
-//        ss.precision(3);
-//        ss << toStr(i) << "," << 1000.F*bo.getSMV() << "mV";
-//
-//        string textboxstring =  ss.str();
-//
-//        // create a text box scaled from 720x480
-//        Image< PixRGB<byte> > textImg;
-//        const Dims d = img.getDims();
-//        const int numW = (8 * d.w()) / 720;
-//        const int numH = (25 * d.h()) / 480;
-//        const int fntH = (20 * d.h()) / 480;
-//
-//        // create the timecode text adding padding extra 10 pixels to ensure fits
-//        textImg.resize(numW * textboxstring.length() + 10, numH, NO_INIT);
-//        textImg.clear(COL_WHITE);
-//
-//        // set the maximum font height. This may not necessarily
-//        // be the maximum height, but will match the largest
-//        // that is closest to fntH
-//        const SimpleFont f = SimpleFont::fixedMaxHeight(fntH);
-//
-//        writeText(textImg, Point2D<int>(0, 0), textboxstring.c_str(), COL_BLACK,
-//                COL_WHITE, f, true);
-//
-//        pasteImage(result, textImg, COL_TRANSPARENT, ctr+offset, 0.25F);
-//        bo.drawOutline(result, color);
-//        i++;
-//    }
-//    return result;
-//}
-
-// ######################################################################
-
+  
 // ######################################################################
 
 Image<byte> showAllObjects(const list<BitObject>& objs) {

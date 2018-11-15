@@ -72,24 +72,18 @@ bool isGrayscale(const Image<PixRGB<byte> > &src);
 /*! bitImg is flooded starting from each point within region,
   and each BitObject exceeding the minSize is stored in the
   list of BitObjects that is returned. */
-std::list <BitObject> extractBitObjects(const Image<byte> &bitImg,
+std::list <BitObject> extractBitObjectsGray(const Image<byte> &bitImg,
                                         Rectangle region,
                                         const int minSize,
-                                        const int maxSize);
-
-//! extract a set of BitObjects from color image*/
-std::list <BitObject> extractBitObjects(const Image<PixRGB<byte> > &bImg,
-                                        const Point2D<int> seed,
-                                        const Rectangle searchRegion,
-                                        const Rectangle segmentRegion,
-                                        const int minSize,
-                                        const int maxSize,
-                                        const float minIntensity = 0.0F,
-                                        const int iterations = 3);
-
-
-//! extract a set of BitObjects from color image and display output*/
-std::list <BitObject> extractBitObjectsDisplay(nub::soft_ref<MbariResultViewer> &rv,
+                                        const int maxSize); 
+                                        
+//! remove overlapping bit objects
+std::list <BitObject> removeOverlappingObjects(std::list<BitObject> &bosUnfiltered);
+ 
+//! extract a set of BitObjects from a color labeled images, which intersect region
+/*! Color labeled by graphcut segmentation algorithm. Image is then flooded starting
+ * from each point within segmentRegion, and each BitObject within min/maxSize is kept*/
+std::list <BitObject> extractBitObjectsGraphcut(nub::soft_ref<MbariResultViewer> &rv,
                                         const uint frameNum,
                                         const Image<PixRGB<byte> > &bImg,
                                         const Point2D<int> seed,
@@ -99,29 +93,8 @@ std::list <BitObject> extractBitObjectsDisplay(nub::soft_ref<MbariResultViewer> 
                                         const int maxSize,
                                         const float minIntensity = 0.0F,
                                         const int iterations = 3);
-
-//! extract a set of BitObjects from a color labeled images, which intersect region
-/*! Same as above, except assumption is image is color labeled by
- * external segmentation algorithm. Image is then flooded starting
- * from each point within region, and each BitObject exceeding the
- * minSize is stored in the list of BitObjects that is returned. */
-std::list <BitObject> extractBitObjects(const Image<PixRGB<byte> > &bImg,
-                                        Image<byte> &mask,
-                                        const Point2D<int> seed,
-                                        const Rectangle region,
-                                        const int minSize,
-                                        const int maxSize);
-
-//! extract a single BitObject from image using graphCut algorithm.
-/*! Same as above, except assumption is image has no labeling and is just
- * a raw image. Returns invalid BitObject if none found */
-BitObject extractBitObject(const Image<PixRGB<byte> > &image,
-                           const Point2D<int> seed,
-                           const Rectangle region,
-                           const int minSize,
-                           const int maxSize);
-
-    //! returns list of SalientWinners of the most salient points
+    
+//! returns list of SalientWinners of the most salient points
 /*! @param manager the model manager
  @param clipMask image to apply as mask over the input image
  @param brain the brain to process saliency
@@ -156,8 +129,8 @@ std::list <WTAwinner> getGraphWinners(const Image<PixRGB<byte> > &graphBitImg,
 /*!*@param graphBitImg a color coded image used for extracting BitObjects at the
  * winner locations
  @param winners list of  winners*/
-std::list <BitObject> getSalientObjects(const Image<PixRGB<byte> > &graphBitImg,
-                                        const std::list <Winner> &winners);
+std::list <BitObject> getSalientObjects(nub::soft_ref<MbariResultViewer> &rv, const uint frameNum, 
+const Image<PixRGB<byte> > &graphBitImg, const std::list <Winner> &winners);
 
 //! returns the FOA BitObjects near the winning locations points
 /*!*@param mask user supplied mask for equipment, etc.
@@ -171,7 +144,8 @@ std::list<BitObject> getFOAObjects(const std::list<Winner> &winners, const Image
  * @param bitImg a binary image used for extracting BitObjects at the winner locations
  @param winners list of Salient winners
  *@param mask user supplied mask for equipment, etc. */
-std::list <BitObject> getSalientObjects(const Image<PixRGB<byte> > &graphBitImg,
+std::list <BitObject> getSalientObjects(nub::soft_ref<MbariResultViewer> &rv, const uint frameNum, 
+                                        const Image<PixRGB<byte> > &graphBitImg,
                                         const Image<byte> &bitImg, const std::list <Winner> &winners,
                                         const Image<byte> &mask);
 

@@ -487,7 +487,11 @@ BitObject VisualEventSet::getBitObjectPrediction(const Token &evtToken, const Po
 		}
 
 	objPred.reset(maskShifted);
-	return objPred;
+	// if shifted object isn't valid return the last bitobject
+	if (objPred.isValid())
+	    return objPred;
+    else
+        return evtToken.bitObject;
 }
 
 // ######################################################################
@@ -549,47 +553,20 @@ list<BitObject> VisualEventSet::getBitObjects(nub::soft_ref<MbariResultViewer>&r
 	float minArea, maxArea;
 
 	// constrain bit object size and intersection
-    minArea =  int((float) evtToken.bitObject.getArea()*.5f);
-    maxArea =  int((float) evtToken.bitObject.getArea()*2.0f);
+    minArea =  int((float) evtToken.bitObject.getArea()*.25f);
+    maxArea =  int((float) evtToken.bitObject.getArea()*4.0f);
 
 	// extract bit objects removing those that fall outside area set by previous bitobject
-	bosUnfiltered = extractBitObjectsDisplay(rv, currEvent->getEndFrame(), segmentImg, center, searchRegion, segmentRegion,
+	bosUnfiltered = extractBitObjectsGraphcut(rv, currEvent->getEndFrame(), segmentImg, center, searchRegion, segmentRegion,
 	                                minArea, maxArea);
-	                                
-    // Remove overlapping detections
-    bool found = false;
-	DetectionParameters p = DetectionParametersSingleton::instance()->itsParameters;
-    int minSize = p.itsMinEventArea;
-    if (p.itsRemoveOverlappingDetections) {
-        LINFO("Removing overlapping detections");
-        // loop until we find all non-overlapping objects starting with the smallest
-        while (!bosUnfiltered.empty()) {
-
-            std::list<BitObject>::iterator biter, siter, smallest;
-            // find the smallest object
-            smallest = bosUnfiltered.begin();
-            for (siter = bosUnfiltered.begin(); siter != bosUnfiltered.end(); ++siter)
-                if (siter->getArea() < minSize) {
-                    minSize = siter->getArea();
-                    smallest = siter;
-                }
-
-            // does the smallest object intersect with any of the already stored ones
-            found = true;
-            for (biter = bosFiltered.begin(); biter != bosFiltered.end(); ++biter) {
-                if (smallest->isValid() && biter->isValid() && biter->doesIntersect(*smallest)) {
-                    // no need to store intersecting objects -> get rid of smallest
-                    // and look for the next smallest
-                    bosUnfiltered.erase(smallest);
-                    found = false;
-                    break;
-                }
-            }
-
-            if (found && smallest->isValid())
-                bosFiltered.push_back(*smallest);
-        }
-    }
+	                                 
+	DetectionParameters p = DetectionParametersSingleton::instance()->itsParameters; 
+    
+    if (p.itsRemoveOverlappingDetections)
+        bosFiltered = removeOverlappingObjects(bosUnfiltered);
+    else
+        bosFiltered.splice(bosFiltered.end(), bosUnfiltered);  
+        
     LINFO("Found total %lu objects", bosFiltered.size());
 	return bosFiltered;
 }
@@ -667,13 +644,11 @@ bool VisualEventSet::runBaseTracker(nub::soft_ref<MbariResultViewer> rv,
   list<BitObject> objs;
 
   // if need to find bit objects
-  if (search) {
+  if (search)
 	  objs = getBitObjects(rv, currEvent, center, imgData.segmentImg);
-	  LINFO("SEARCHING");
-	  }
   else
 	  objs.push_back(evtToken.bitObject);
-
+    
   LINFO("pred. location: [%s]; Number of extracted objects: %ld",  toStr(pred).data(),objs.size());
 
   float maxCost = itsDetectionParms.itsMaxCost;
@@ -899,7 +874,6 @@ bool VisualEventSet::resetIntersect(Image< PixRGB<byte> >& img, BitObject& obj, 
   Token evtToken;
   BitObject predObj;
   Image< PixRGB<byte> > imgRescaled = rescale(img, Dims(DEFAULT_HOUGH_WIDTH, DEFAULT_HOUGH_HEIGHT));
-  Image<byte> se = twofiftyfives(dp.itsCleanupStructureElementSize);
   std::string className = obj.getClassName();
   float classProb = obj.getClassProbability();
   Point2D<int> pred;
@@ -1133,7 +1107,7 @@ void VisualEventSet::drawTokens(Image< PixRGB<byte> >& img,
   list<VisualEvent *>::iterator currEvent;
   for (currEvent = itsEvents.begin(); currEvent != itsEvents.end(); ++currEvent)
   {
-      // does this guy  participate in frameNum ? and
+      // does this one participate in frameNum and
       // if also saving non-interesting events and this is BORING event, be sure to save this
       // otherwise, save all INTERESTING events
       if( (*currEvent)->frameInRange(frameNum) &&

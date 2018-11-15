@@ -115,7 +115,7 @@
 using namespace std;
 using namespace xercesc;
 
-//#define DEBUG
+#define DEBUG
 #define MAX_INT32 2147483647
 
 struct BoundingBox {
@@ -127,10 +127,10 @@ struct BoundingBox {
 
 int main(const int argc, const char** argv) {
 
-	DetectionParameters dp = DetectionParametersSingleton::instance()->itsParameters;
-	Segmentation segmentation;
+    DetectionParameters dp = DetectionParametersSingleton::instance()->itsParameters;
+    Segmentation segmentation;
 
-	#ifdef DEBUG
+    #ifdef DEBUG
     PauseWaiter pause;
     setPause(true);
     #endif
@@ -142,31 +142,29 @@ int main(const int argc, const char** argv) {
     	LINFO("CAUGHT EXCEPTION");
     	return -1;
     }
+    // Variables Utilized
+    XercesDOMParser *itsParser = new XercesDOMParser;	// Ensures File is readable
 
-	// Variables Utilized
-	XercesDOMParser *itsParser = new XercesDOMParser;	// Ensures File is readable
+    bool singleFrame = false;
+    uint frameNum = 0;
+    Image< PixRGB<byte> > inputRaw, inputScaled;
 
-	bool singleFrame = false;
-	uint frameNum = 0;
-	Image< PixRGB<byte> > inputRaw, inputScaled;
-
-	ModelManager manager("pascalvocvision");
-
-	nub::soft_ref<SimEventQueueConfigurator>seqc(new SimEventQueueConfigurator(manager));
+    ModelManager manager("pascalvocvision");
+    nub::soft_ref<SimEventQueueConfigurator>seqc(new SimEventQueueConfigurator(manager));
     manager.addSubComponent(seqc);
-	nub::soft_ref<OutputFrameSeries> ofs(new OutputFrameSeries(manager));
-	nub::soft_ref<InputFrameSeries> ifs(new InputFrameSeries(manager));
+    nub::soft_ref<OutputFrameSeries> ofs(new OutputFrameSeries(manager));
+    nub::soft_ref<InputFrameSeries> ifs(new InputFrameSeries(manager));
 
-	nub::soft_ref<BoxObjectDetection> objdet(new BoxObjectDetection(manager));
+    nub::soft_ref<BoxObjectDetection> objdet(new BoxObjectDetection(manager));
     manager.addSubComponent(objdet);
 
     nub::soft_ref<Preprocess> preprocess(new Preprocess(manager));
     manager.addSubComponent(preprocess);
 
-	manager.addSubComponent(ofs);
-	manager.addSubComponent(ifs);
+    manager.addSubComponent(ofs);
+    manager.addSubComponent(ifs);
 
-	// Get the directory of this executable
+    // Get the directory of this executable
     std::string exe(argv[0]);
     size_t found = exe.find_last_of("/\\");
     nub::soft_ref<Logger> logger(new Logger(manager, ifs, ofs, exe.substr(0, found)));
@@ -211,9 +209,9 @@ int main(const int argc, const char** argv) {
         }
     }
 
-	Dims scaledDims = ifs->peekDims();
+    Dims scaledDims = ifs->peekDims();
 
-	// if the user has selected to retain the original dimensions in the events disable scaling in the frame series
+    // if the user has selected to retain the original dimensions in the events disable scaling in the frame series
     // and use the scaling factors directly
     if (dp.itsSaveOriginalFrameSpec) {
         ofs->setModelParamVal(string("OutputFrameDims"), Dims(0, 0));
@@ -235,8 +233,8 @@ int main(const int argc, const char** argv) {
 
     // get reference to the SimEventQueue
     nub::soft_ref<SimEventQueue> seq = seqc->getQ();
-	manager.start();
-	// set defaults for detection model parameters
+    manager.start();
+    // set defaults for detection model parameters
     DetectionParametersSingleton::initialize(dp, scaledDims, foaRadius);
 
     // initialize the visual event set
@@ -359,7 +357,7 @@ int main(const int argc, const char** argv) {
 			  LFATAL("Error when attempting to parse the XML file : %s", description.c_str());
 
 			LINFO("START > objdet->run() <");
-			objs = objdet->run(rv, vocs, segmentIn);
+			objs = objdet->run(rv, frameNum, vocs, segmentIn);
 
 			// create new events with this
 			LINFO("Initiate events frame num: %i ", frameNum);
@@ -421,11 +419,10 @@ int main(const int argc, const char** argv) {
 			break;
 		}
 	}
-	manager.stop();
-
-	LDEBUG("Reached END");
-
+	
+    //######################################################
+    LINFO("done!!!");
+    manager.stop();
 	delete itsParser;
-
 	return EXIT_SUCCESS;
 }

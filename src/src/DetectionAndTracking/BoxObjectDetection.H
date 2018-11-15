@@ -72,6 +72,7 @@ public:
 
 	  //! BoxObjectDetection
 	std::list<BitObject> run(nub::soft_ref<MbariResultViewer> rv,
+                    const uint frameNum,
 					const std::list<VOCObject> &objectList,
 					const Image< PixRGB<byte> > &segmentInImg);
 

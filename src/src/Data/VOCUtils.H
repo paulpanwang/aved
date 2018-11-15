@@ -199,9 +199,7 @@ void getImageSize(XercesDOMParser *itsParser, const Dims& dims){
 	if(originalWidth != dims.w() && originalHeight != dims.h()){
 		double result = (1.0 - (double(originalWidth - dims.w())/originalWidth));
 		rescalePercentWidth = result;
-		double result2 = (1.0 - (double(originalHeight - dims.h())/originalHeight));
-		rescalePercentHeight = result2;
-		LDEBUG("Rescale percentage: %f%% x %f%%", rescalePercentHeight, rescalePercentWidth);
+		rescalePercentHeight = (1.0 - (double(originalHeight - dims.h())/originalHeight)); 
 	} else{
 		rescalePercentWidth = 1.0;
 		rescalePercentHeight = 1.0;
@@ -255,7 +253,7 @@ void getObjectValues(XercesDOMParser *itsParser, list<VOCObject>& objectList, co
 							int((float)tempDim.ymax * rescalePercentHeight),
 							int((float)tempDim.xmax * rescalePercentWidth));
 					Rectangle bbox = tmpBbox.getOverlap(Rectangle(Point2D<int>(0, 0), dims - 1));
-					LINFO("Bounding box %s %d %d %d %d rescalePercentWidth %f rescalePercentHeight %f",
+					LINFO("Bounding box %s %d %d %d %d rescale width %f %% Height %f %%",
 							toStr(bbox).data(), tempDim.xmin, tempDim.xmax, tempDim.ymin, tempDim.ymax, rescalePercentWidth, rescalePercentHeight);
 					tempVOCObject.setDimensions(bbox);
 

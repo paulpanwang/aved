@@ -116,7 +116,7 @@ std::list<BitObject> ObjectDetection::run( nub::soft_ref<MbariResultViewer> rv,
                (*winIter).getFrameNum(), winner.p.i, winner.p.j, convertToString(searchRegion).c_str(),
                p.itsMinEventArea, p.itsMaxEventArea, d.w(), d.h());
 
-        std::list<BitObject> sobjs = extractBitObjectsDisplay(rv, frameNum, segmentInImg, center, searchRegion,
+        std::list<BitObject> sobjs = extractBitObjectsGraphcut(rv, frameNum, segmentInImg, center, searchRegion,
                                                                 segmentRegion, p.itsMinEventArea, p.itsMaxEventArea);
         LINFO("Found %lu bitobject(s) in FOA region", sobjs.size());
 
@@ -131,47 +131,11 @@ std::list<BitObject> ObjectDetection::run( nub::soft_ref<MbariResultViewer> rv,
     }// end while winIter != winners.end()
 
     LINFO("Found %lu bitobject(s)", bosUnfiltered.size());
-
-    bool found = false;
-    int minSize = p.itsMaxEventArea;
-    if (p.itsRemoveOverlappingDetections) {
-        LINFO("Removing overlapping detections");
-        // loop until we find all non-overlapping objects starting with the smallest
-        while (!bosUnfiltered.empty()) {
-
-            std::list<BitObject>::iterator biter, siter, smallest;
-            // find the smallest object
-            smallest = bosUnfiltered.begin();
-            for (siter = bosUnfiltered.begin(); siter != bosUnfiltered.end(); ++siter)
-                if (siter->getArea() < minSize) {
-                    minSize = siter->getArea();
-                    smallest = siter;
-                }
-
-            // does the smallest object intersect with any of the already stored ones
-            found = true;
-            for (biter = bosFiltered.begin(); biter != bosFiltered.end(); ++biter) {
-                if (smallest->isValid() && biter->isValid() && biter->doesIntersect(*smallest)) {
-                    // no need to store intersecting objects -> get rid of smallest
-                    // and look for the next smallest
-                    bosUnfiltered.erase(smallest);
-                    found = false;
-                    break;
-                }
-            }
-
-            if (found && smallest->isValid())
-                bosFiltered.push_back(*smallest);
-        }
-    }
-    else {
-        LINFO("Keeping all valid %lu bitobject(s)", bosUnfiltered.size());
-        std::list<BitObject>::iterator biter;
-        for (biter = bosUnfiltered.begin(); biter != bosUnfiltered.end(); ++biter) {
-            if (biter->isValid())
-                bosFiltered.push_back(*biter);
-        }
-    }
+ 
+    if (p.itsRemoveOverlappingDetections)
+        bosFiltered = removeOverlappingObjects(bosUnfiltered);
+    else
+        bosFiltered.splice(bosFiltered.end(), bosUnfiltered);  
 
     LINFO("Found total %lu objects", bosFiltered.size());
     return bosFiltered;
