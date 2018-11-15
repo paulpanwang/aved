@@ -480,8 +480,8 @@ BitObject VisualEventSet::getBitObjectPrediction(const Token &evtToken, const Po
 	Image<byte> maskShifted(d,ZEROS);
 	for(int i = 0;i< w;i++)
 		for(int j = 0;j<h;j++){
-			int ix = shift_i + i;
-			int iy = shift_j + j;
+			int ix = shift_i - i;
+			int iy = shift_j - j;
 			if(mask.coordsOk(ix,iy))
 				maskShifted.setVal(i,j,mask.getVal(ix,iy));
 		}
