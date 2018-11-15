@@ -631,8 +631,10 @@ bool VisualEventSet::runBaseTracker(nub::soft_ref<MbariResultViewer> rv,
   list<BitObject> objs;
 
   // if need to find bit objects
-  if (search)
+  if (search) {
 	  objs = getBitObjects(rv, currEvent, center, imgData.segmentImg);
+	  LINFO("SEARCHING");
+	  }
   else
 	  objs.push_back(evtToken.bitObject);
 
@@ -651,7 +653,7 @@ bool VisualEventSet::runBaseTracker(nub::soft_ref<MbariResultViewer> rv,
   for (cObj = objs.begin(); cObj != objs.end(); ++cObj) {
     list<BitObject>::iterator next = cObj;
     ++next;
-    area = (*cObj).getArea(); 
+    area = (*cObj).getArea();
 
 	switch (currEvent->getTrackerType()) {
 	case (VisualEvent::NN):
@@ -824,12 +826,13 @@ void VisualEventSet::initiateEvents(list<BitObject>& bos,
 
   if (startframe == -1) {startframe = imgData.frameNum; endframe = imgData.frameNum;}
   if (imgData.frameNum > endframe) endframe = imgData.frameNum;
-  list<BitObject> sobjs, sobjsKeep;
+  list<BitObject> sobjs;
   // reset object if is there an intersection with an event
   list<BitObject>::iterator biter;
   for (biter = bos.begin(); biter != bos.end(); ++biter) {
-	  if (!resetIntersect(imgData.img, *biter, imgData.foe, imgData.frameNum))
+	  if (!resetIntersect(imgData.img, *biter, imgData.foe, imgData.frameNum)) { 
 		 sobjs.push_back(*biter);
+     }
   }
  
   // now go through all the remaining BitObjects and create new events for them
@@ -909,6 +912,7 @@ bool VisualEventSet::resetIntersect(Image< PixRGB<byte> >& img, BitObject& obj, 
 					newToken.frame_nr = frameNum;
 					Image<byte> mask = obj.getObjectMask(byte(1)) + predObj.getObjectMask(byte(1));
 					obj.reset(mask);
+                    obj.setClassProbability(className, classProb);
 					newToken.bitObject = obj;
 					(*cEv)->assignNoPrediction(newToken, curFOE);
 				}
