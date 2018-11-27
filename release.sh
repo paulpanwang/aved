@@ -15,6 +15,6 @@ git tag -a "$version" -m "version $version"
 git push
 git push --tags 
 # push it
-docker push avedac/salientvision:$version
-docker push avedac/pascalvocvision:$version
+docker push aved/salientvision:$version
+docker push aved/pascalvocvision:$version
 build.sh
