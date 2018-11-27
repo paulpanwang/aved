@@ -18,4 +18,4 @@ RUN make install
 
 # Setup environment and entrypoint
 ENV AVED_BIN '/usr/local/bin'
-#ENTRYPOINT ["/usr/local/bin/pascalvocvision"]
+ENTRYPOINT ["/usr/local/bin/pascalvocvision"]
