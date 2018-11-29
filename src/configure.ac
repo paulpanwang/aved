@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl This macro is a must
 
-AC_INIT([mbarivision.C], [dcline@mbari.org])
+AC_INIT([salientvision.C], [dcline@mbari.org])
 AC_PREREQ(2.50)
 AC_PREFIX_DEFAULT(/usr/local/aved)
 AC_LANG(C++)
@@ -110,6 +110,13 @@ if test -d "$with_saliency" ; then
 
 CPPFLAGS="$cppflags_save"
 LDFLAGS="$ldflags_save"
+
+if test "${VERSION}"; then
+  echo "variable \$VERSION is set to: $VERSION"
+  AC_SUBST(VERSION)
+else
+  AC_MSG_ERROR([VERSION not set])
+fi
 
 AC_SUBST(with_saliency)
 

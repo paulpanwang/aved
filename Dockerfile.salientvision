@@ -1,8 +1,8 @@
 FROM visiondeps
 MAINTAINER Danelle Cline <dcline@mbari.org>
 
-
 # build target
+ARG VERSION
 WORKDIR /code/aved
 ADD src .
 RUN autoconf configure.ac > configure

@@ -30,7 +30,7 @@
 
 VOCObject::VOCObject() {
 	itsName = "";
-	itsProbability = 1.0f;
+	itsConfidence = 1.0f;
 	itsDimensions = Rectangle::tlbrO(0, 0, 0, 0);
 }
 

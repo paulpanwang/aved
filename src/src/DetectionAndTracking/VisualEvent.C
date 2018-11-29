@@ -276,7 +276,7 @@ void VisualEvent::assignNoPrediction(const Token& tk, const Vector2D& foe)
   ASSERT(isTokenOk(tk));
   BitObject obj = tk.bitObject;
   double smv = obj.getSMV();
-  float class_prob = obj.getClassProbability();
+  float class_prob = obj.getClassConfidence();
   string class_name = obj.getClassName();
 
   tokens.push_back(tk);
@@ -335,7 +335,7 @@ void VisualEvent::updatePrediction(const Token& tk, const Vector2D& foe)
 {
 	double smv = tokens.back().bitObject.getSMV();
 	BitObject bo = tk.bitObject;
-	float class_prob = bo.getClassProbability();
+	float class_prob = bo.getClassConfidence();
 	string class_name = bo.getClassName();
 	LINFO("Updating prediction to %s %f at [%g;%g]", class_name.c_str(), class_prob, tk.location.x(), tk.location.y());
  

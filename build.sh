@@ -15,4 +15,5 @@ if [ ! -d $PWD/saliency ]; then
 fi
 
 # Build everything
-docker-compose build
+version=`cat VERSION`
+docker-compose build --build-arg VERSION=$version

@@ -42,6 +42,8 @@
         <xs:element ref="Classification" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute name="ObjectID" type="xs:string" use="required"/>
+      <xs:attribute name="ObjectName" type="xs:string" use="required"/>
+      <xs:attribute name="ObjectConfidence" type="xs:string" use="required"/>
       <xs:attribute name="StartFrameNumber" type="xs:integer" use="optional"/>
       <xs:attribute name="StartTimecode" type="xs:string" use="optional"/>
       <xs:attribute name="Saliency" type="xs:float" use="optional"/>

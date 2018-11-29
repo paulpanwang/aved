@@ -40,7 +40,7 @@
 
 
 #define DEFAULT_CLASS_NAME "Unknown"
-#define DEFAULT_CLASS_PROBABILITY 1.0f
+#define DEFAULT_CLASS_CONFIDENCE 1.0f
 
 
 //! Object defined by a connected binary pixel region
@@ -78,7 +78,7 @@ public:
   //! set class name and probability
   void inline setClassProbability(const std::string className, const float classProbability) {
 	  itsClassName = className;
-	  itsClassProbability = classProbability;
+	  itsClassConfidence = classProbability;
   };
 
   //! Construct from a byte Image
@@ -202,8 +202,8 @@ public:
   // ! Returns the Potential Object's Name
   std::string getClassName();
 
-  // ! Returns the Potential Object's Probability
-  float getClassProbability();
+  // ! Returns the Potential Object's Confidence
+  float getClassConfidence();
 
   //! whether the object is valid
   /*! This is going to be false if no object could be extracted
@@ -256,7 +256,7 @@ private:
   bool haveSecondMoments;
   double itsSMV;
   std::string itsClassName;
-  float itsClassProbability;
+  float itsClassConfidence;
 };
 
 #endif

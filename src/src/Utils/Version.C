@@ -28,14 +28,17 @@
 
 #include "Utils/Version.H"
 #include <sstream>
+ 
+#define stringify( x ) stringify_literal( x )
+#define stringify_literal( x ) # x
 
 void printVersion() {
-  fprintf(stderr, "%s v%s (C) 2018 MBARI built %s at %s \n", PACKAGE, VERSION, __DATE__, __TIME__);
+  fprintf(stderr, "%s v%s (C) 2018 MBARI built %s at %s \n", stringify(PACKAGE), stringify(VERSION), __DATE__, __TIME__);
 }
 std::string versionString() {
   std::stringbuf sb;
   std::ostream  os(&sb);
-  os << PACKAGE  << " v" << VERSION  << " (C) 2018 MBARI built " << __DATE__ << " at " << __TIME__  << "\n";
+  os << stringify(PACKAGE)  << " v" << stringify(VERSION)  << " (C) 2018 MBARI built " << __DATE__ << " at " << __TIME__  << "\n";
   os.flush();
   return sb.str();
 }

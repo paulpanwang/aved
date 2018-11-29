@@ -41,17 +41,17 @@ public:
 
 	// Getters
 	std::string getName()const 		{return itsName;}
-	float getProbability()const 	{return itsProbability;}
+	float getConfidence()const 	{return itsConfidence;}
 	Rectangle getDimensions()const	{return itsDimensions;}
 
 	// Setters
 	void setName(const std::string& newName) 			{itsName = newName;}
-	void setProbability(const float& newProbability) 	{itsProbability = newProbability;}
+	void setConfidence(const float& newConfidence) 	{itsConfidence = newConfidence;}
 	void setDimensions(const Rectangle& newDimensions)	{itsDimensions = newDimensions;}
 
 private:
 	std::string itsName;
-	float itsProbability;
+	float itsConfidence;
 	Rectangle itsDimensions;
 };
 

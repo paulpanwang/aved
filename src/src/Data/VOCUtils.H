@@ -270,7 +270,7 @@ void getObjectValues(XercesDOMParser *itsParser, list<VOCObject>& objectList, co
 					double con = 0;
 					is >> con;
 
-					tempVOCObject.setProbability(con);
+					tempVOCObject.setConfidence(con);
 				}
 
 			}

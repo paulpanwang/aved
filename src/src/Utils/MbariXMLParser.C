@@ -530,26 +530,27 @@ void MbariXMLParser::add(bool saveNonInterestingEvents,
   // Create the body of the DOMDocument
   try {
 
+    XMLCh *s, *v;
     // add another leaf to root node for detection parameters
-    XMLCh *frameeventsetstring = xercesc::XMLString::transcode("FrameEventSet");
-    xercesc::DOMElement *frameeventset = itsXMLdoc->createElement(frameeventsetstring);
-    xercesc::XMLString::release(&frameeventsetstring);
+    s = xercesc::XMLString::transcode("FrameEventSet");
+    xercesc::DOMElement *frameeventset = itsXMLdoc->createElement(s);
+    xercesc::XMLString::release(&s);
 
     ostringstream number;
     // if conversion from frame to string worked,
     if (number << eventframe) {
-      XMLCh *framenumberstring = xercesc::XMLString::transcode("FrameNumber");
-      XMLCh *framenumbervalue = xercesc::XMLString::transcode(number.str().c_str());
-      frameeventset->setAttribute(framenumberstring, framenumbervalue);
-      xercesc::XMLString::release(&framenumberstring);
-      xercesc::XMLString::release(&framenumbervalue);
+      s = xercesc::XMLString::transcode("FrameNumber");
+      v = xercesc::XMLString::transcode(number.str().c_str());
+      frameeventset->setAttribute(s, v);
+      xercesc::XMLString::release(&s);
+      xercesc::XMLString::release(&v);
     }
 
-    XMLCh *timecode = xercesc::XMLString::transcode("TimeCode");
-    XMLCh *timecodevaluevalue = xercesc::XMLString::transcode(eventframetimecode.c_str());
-    frameeventset->setAttribute(timecode, timecodevaluevalue);
-    xercesc::XMLString::release(&timecode);
-    xercesc::XMLString::release(&timecodevaluevalue);
+    s = xercesc::XMLString::transcode("TimeCode");
+    v = xercesc::XMLString::transcode(eventframetimecode.c_str());
+    frameeventset->setAttribute(s, v);
+    xercesc::XMLString::release(&s);
+    xercesc::XMLString::release(&v);
 
 
     list<VisualEvent *>::iterator i;
@@ -558,66 +559,80 @@ void MbariXMLParser::add(bool saveNonInterestingEvents,
       // otherwise, save all INTERESTING events
       if ((saveNonInterestingEvents && (*i)->getCategory() == VisualEvent::BORING) ||
           (*i)->getCategory() == VisualEvent::INTERESTING) {
-        ostringstream s1, s2, s3, s4, s5, s6, s7;
+        ostringstream strstr;
         uint eframe = (*i)->getEndFrame();
         Token tke = (*i)->getToken(eframe);
 
         //create event object element and add attributes
-        XMLCh *eventobjectstring = xercesc::XMLString::transcode("EventObject");
-        xercesc::DOMElement *eventObject = itsXMLdoc->createElement(eventobjectstring);
-        xercesc::XMLString::release(&eventobjectstring);
+        s = xercesc::XMLString::transcode("EventObject");
+        xercesc::DOMElement *eventObject = itsXMLdoc->createElement(s);
+        xercesc::XMLString::release(&s);
 
-        s1 << (*i)->getEventNum();
-        XMLCh *objectidstring = xercesc::XMLString::transcode("ObjectID");
-        XMLCh *objectidvalue = xercesc::XMLString::transcode(s1.str().c_str());
-        eventObject->setAttribute(objectidstring, objectidvalue);
-        xercesc::XMLString::release(&objectidstring);
-        xercesc::XMLString::release(&objectidvalue);
+        strstr << (*i)->getEventNum();
+        s = xercesc::XMLString::transcode("ObjectID");
+        v = xercesc::XMLString::transcode(strstr.str().c_str());
+        eventObject->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
-        s2 << (*i)->getStartFrame();
-        XMLCh *startframenumberstring = xercesc::XMLString::transcode("StartFrameNumber");
-        XMLCh *startframenumbervalue = xercesc::XMLString::transcode(s2.str().c_str());
-        eventObject->setAttribute(startframenumberstring, startframenumbervalue);
-        xercesc::XMLString::release(&startframenumberstring);
-        xercesc::XMLString::release(&startframenumbervalue);
+        strstr << (*i)->getStartFrame();
+        s = xercesc::XMLString::transcode("StartFrameNumber");
+        v = xercesc::XMLString::transcode(strstr.str().c_str());
+        eventObject->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
         if ((*i)->getStartTimecode().length() > 0) {
-          s3 << (*i)->getStartTimecode();
-          XMLCh *starttimecodetring = xercesc::XMLString::transcode("StartTimecode");
-          XMLCh *starttimecodevalue = xercesc::XMLString::transcode(s3.str().c_str());
-          eventObject->setAttribute(starttimecodetring, starttimecodevalue);
-          xercesc::XMLString::release(&starttimecodetring);
-          xercesc::XMLString::release(&starttimecodevalue);
+          strstr << (*i)->getStartTimecode();
+          s = xercesc::XMLString::transcode("StartTimecode");
+          v = xercesc::XMLString::transcode(strstr.str().c_str());
+          eventObject->setAttribute(s, v);
+          xercesc::XMLString::release(&s);
+          xercesc::XMLString::release(&v);
         }
 
-        s4 << tke.bitObject.getSMV();
-        XMLCh *saliencystring = xercesc::XMLString::transcode("Saliency");
-        XMLCh *saliencyvalue = xercesc::XMLString::transcode(s4.str().c_str());
-        eventObject->setAttribute(saliencystring, saliencyvalue);
-        xercesc::XMLString::release(&saliencystring);
-        xercesc::XMLString::release(&saliencyvalue);
+        strstr << tke.bitObject.getClassConfidence();
+        s = xercesc::XMLString::transcode("ObjectConfidence");
+        v = xercesc::XMLString::transcode(strstr.str().c_str());
+        eventObject->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
+        
+        strstr << tke.bitObject.getClassName();
+        s = xercesc::XMLString::transcode("ObjectName");
+        v = xercesc::XMLString::transcode(strstr.str().c_str());
+        eventObject->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
+        
+        strstr << tke.bitObject.getSMV();
+        s = xercesc::XMLString::transcode("Saliency");
+        v = xercesc::XMLString::transcode(strstr.str().c_str());
+        eventObject->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
-        s5 << tke.bitObject.getArea();
-        XMLCh *currsizestring = xercesc::XMLString::transcode("CurrSize");
-        XMLCh *currsizevalue = xercesc::XMLString::transcode(s5.str().c_str());
-        eventObject->setAttribute(currsizestring, currsizevalue);
-        xercesc::XMLString::release(&currsizestring);
-        xercesc::XMLString::release(&currsizevalue);
+        strstr << tke.bitObject.getArea();
+        s = xercesc::XMLString::transcode("CurrSize");
+        v = xercesc::XMLString::transcode(strstr.str().c_str());
+        eventObject->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
         Point2D<int> p = tke.bitObject.getCentroid();
-        s6 << (int) ((float) p.i * scaleW);
-        XMLCh *currxstring = xercesc::XMLString::transcode("CurrX");
-        XMLCh *currxvalue = xercesc::XMLString::transcode(s6.str().c_str());
-        eventObject->setAttribute(currxstring, currxvalue);
-        xercesc::XMLString::release(&currxstring);
-        xercesc::XMLString::release(&currxvalue);
+        strstr << (int) ((float) p.i * scaleW);
+        s = xercesc::XMLString::transcode("CurrX");
+        v = xercesc::XMLString::transcode(strstr.str().c_str());
+        eventObject->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
-        s7 << (int) ((float) p.j * scaleH);
-        XMLCh *currystring = xercesc::XMLString::transcode("CurrY");
-        XMLCh *curryvalue = xercesc::XMLString::transcode(s7.str().c_str());
-        eventObject->setAttribute(currystring, curryvalue);
-        xercesc::XMLString::release(&currystring);
-        xercesc::XMLString::release(&curryvalue);
+        strstr << (int) ((float) p.j * scaleH);
+        s = xercesc::XMLString::transcode("CurrY");
+        v = xercesc::XMLString::transcode(strstr.str().c_str());
+        eventObject->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
         Rectangle r = tke.bitObject.getBoundingBox();
         ostringstream llx, lly, urx, ury;
@@ -627,33 +642,33 @@ void MbariXMLParser::add(bool saveNonInterestingEvents,
         ury << (int) ((float) r.top() * scaleH);
 
         // create bounding box element and add attributes
-        XMLCh *boundingboxstring = xercesc::XMLString::transcode("BoundingBox");
-        xercesc::DOMElement *boundingBox = itsXMLdoc->createElement(boundingboxstring);
-        xercesc::XMLString::release(&boundingboxstring);
+        s = xercesc::XMLString::transcode("BoundingBox");
+        xercesc::DOMElement *boundingBox = itsXMLdoc->createElement(s);
+        xercesc::XMLString::release(&s);
 
-        XMLCh *lowerleftxstring = xercesc::XMLString::transcode("LowerLeftX");
-        XMLCh *lowerleftxvalue = xercesc::XMLString::transcode(llx.str().c_str());
-        boundingBox->setAttribute(lowerleftxstring, lowerleftxvalue);
-        xercesc::XMLString::release(&lowerleftxstring);
-        xercesc::XMLString::release(&lowerleftxvalue);
+        s = xercesc::XMLString::transcode("LowerLeftX");
+        v = xercesc::XMLString::transcode(llx.str().c_str());
+        boundingBox->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
-        XMLCh *lowerleftystring = xercesc::XMLString::transcode("LowerLeftY");
-        XMLCh *lowerleftyvalue = xercesc::XMLString::transcode(lly.str().c_str());
-        boundingBox->setAttribute(lowerleftystring, lowerleftyvalue);
-        xercesc::XMLString::release(&lowerleftystring);
-        xercesc::XMLString::release(&lowerleftyvalue);
+        s = xercesc::XMLString::transcode("LowerLeftY");
+        v = xercesc::XMLString::transcode(lly.str().c_str());
+        boundingBox->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
-        XMLCh *upperrightxstring = xercesc::XMLString::transcode("UpperRightX");
-        XMLCh *upperrightxvalue = xercesc::XMLString::transcode(urx.str().c_str());
-        boundingBox->setAttribute(upperrightxstring, upperrightxvalue);
-        xercesc::XMLString::release(&upperrightxstring);
-        xercesc::XMLString::release(&upperrightxvalue);
+        s = xercesc::XMLString::transcode("UpperRightX");
+        v = xercesc::XMLString::transcode(urx.str().c_str());
+        boundingBox->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
-        XMLCh *upperrightystring = xercesc::XMLString::transcode("UpperRightY");
-        XMLCh *upperrightyvalue = xercesc::XMLString::transcode(ury.str().c_str());
-        boundingBox->setAttribute(upperrightystring, upperrightyvalue);
-        xercesc::XMLString::release(&upperrightystring);
-        xercesc::XMLString::release(&upperrightyvalue);
+        s = xercesc::XMLString::transcode("UpperRightY");
+        v = xercesc::XMLString::transcode(ury.str().c_str());
+        boundingBox->setAttribute(s, v);
+        xercesc::XMLString::release(&s);
+        xercesc::XMLString::release(&v);
 
         // append to appropriate elements
         eventObject->appendChild(boundingBox);

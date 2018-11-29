@@ -50,7 +50,7 @@ std::list<BitObject> BoxObjectDetection::run(
 
         Rectangle region = (*iter).getDimensions();
         std::string name = (*iter).getName();
-        float probability = (*iter).getProbability();
+        float probability = (*iter).getConfidence();
 
         Dims segmentDims = Dims((float)region.width()*DEFAULT_SEGMENT_FACTOR,(float)region.height()*DEFAULT_SEGMENT_FACTOR);
         Dims searchDims = Dims((float)region.width()*DEFAULT_SEARCH_FACTOR,(float)region.height()*DEFAULT_SEARCH_FACTOR);
@@ -123,7 +123,7 @@ std::list<BitObject> BoxObjectDetection::run(
     LINFO("Found total %lu objects", bosFiltered.size());
     for(std::list<BitObject>::iterator it = bosFiltered.begin(); it != bosFiltered.end(); ++it) {
         LINFO("area: %d bbox: %s class: %s prob: %f", it->getArea(), toStr(it->getBoundingBox()).data(),
-                it->getClassName().c_str(), it->getClassProbability());
+                it->getClassName().c_str(), it->getClassConfidence());
     }
     return bosFiltered;
 }

@@ -2,6 +2,7 @@ FROM visiondeps
 MAINTAINER Danelle Cline <dcline@mbari.org>
 
 # build target
+ARG VERSION
 WORKDIR /code
 ADD src/ .
 RUN autoconf configure.ac > configure
@@ -18,4 +19,4 @@ RUN make install
 
 # Setup environment and entrypoint
 ENV AVED_BIN '/usr/local/bin'
-ENTRYPOINT ["/usr/local/bin/pascalvocvision"]
+#ENTRYPOINT ["/usr/local/bin/pascalvocvision"]

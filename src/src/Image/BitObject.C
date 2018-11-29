@@ -335,14 +335,14 @@ void BitObject::freeMem()
   itsAvgIntensity = -1.0F;
   haveSecondMoments = false;
   itsClassName = DEFAULT_CLASS_NAME;
-  itsClassProbability = DEFAULT_CLASS_PROBABILITY;
+  itsClassConfidence = DEFAULT_CLASS_CONFIDENCE;
 }
 // ######################################################################
 void BitObject::writeToStream(ostream& os) const
 {
-  // class name and probability
+  // class name and confidence
   os << itsClassName;
-  os << itsClassProbability;
+  os << itsClassConfidence;
 
   // bounding box
   if (itsBoundingBox.isValid())
@@ -398,7 +398,7 @@ void BitObject::readFromStream(istream& is)
 {
   // class name and probability
   is >> itsClassName;
-  is >> itsClassProbability;
+  is >> itsClassConfidence;
 
   // bounding box
   int t, l, b, r;
@@ -640,9 +640,9 @@ std::string BitObject::getClassName()
   return itsClassName;
 }
 // ######################################################################
-float BitObject::getClassProbability()
+float BitObject::getClassConfidence()
 {
-  return itsClassProbability;
+  return itsClassConfidence;
 }
 // ######################################################################
 Dims BitObject::getImageDims() const

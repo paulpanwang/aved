@@ -422,7 +422,7 @@ bool VisualEventSet::runHoughTracker(nub::soft_ref<MbariResultViewer>&rv,
 
   LINFO("%d %d", imgData.img.getDims().w(), obj.getImageDims().w());
   obj.setMaxMinAvgIntensity(luminance(imgData.img));
-  obj.setClassProbability(evtToken.bitObject.getClassName(), evtToken.bitObject.getClassProbability());
+  obj.setClassProbability(evtToken.bitObject.getClassName(), evtToken.bitObject.getClassConfidence());
 
   // skip over this when running multiple trackers and let the multiple tracker algorithm decide
   if (!skip && !found) {
@@ -861,7 +861,7 @@ void VisualEventSet::initiateEvents(list<BitObject>& bos,
       center = currObj->getCentroid();
       LINFO("assigning object found at [%d;%d] area: %i to new event %i frame %d class %s prob %f",
             center.i, center.j, currObj->getArea(), itsEvents.back()->getEventNum(), imgData.frameNum, 
-            currObj->getClassName().c_str(), currObj->getClassProbability());
+            currObj->getClassName().c_str(), currObj->getClassConfidence());
     }
 }
 
@@ -875,7 +875,7 @@ bool VisualEventSet::resetIntersect(Image< PixRGB<byte> >& img, BitObject& obj, 
   BitObject predObj;
   Image< PixRGB<byte> > imgRescaled = rescale(img, Dims(DEFAULT_HOUGH_WIDTH, DEFAULT_HOUGH_HEIGHT));
   std::string className = obj.getClassName();
-  float classProb = obj.getClassProbability();
+  float classProb = obj.getClassConfidence();
   Point2D<int> pred;
 
   for (cEv = itsEvents.begin(); cEv != itsEvents.end(); ++cEv) {
@@ -920,7 +920,7 @@ bool VisualEventSet::resetIntersect(Image< PixRGB<byte> >& img, BitObject& obj, 
 									className.c_str(), classProb);
 					Token newToken = evtToken;
 					newToken.frame_nr = frameNum;
-					Image<byte> mask = obj.getObjectMask(byte(1)) + predObj.getObjectMask(byte(1));
+					Image<byte> mask = obj.getObjectMask(byte(1));
 					obj.reset(mask);
                     obj.setClassProbability(className, classProb);
 					newToken.bitObject = obj;
@@ -1139,9 +1139,9 @@ void VisualEventSet::drawTokens(Image< PixRGB<byte> >& img,
               ostringstream ss;
               ss.precision(2);
               ss << numText;
-              if (tk.bitObject.getClassProbability() >= 0.F && tk.bitObject.getClassProbability() <= 1.0F) {
+              if (tk.bitObject.getClassConfidence() >= 0.F && tk.bitObject.getClassConfidence() <= 1.0F) {
                 ss << "," << tk.bitObject.getClassName();
-                ss << "," << tk.bitObject.getClassProbability();
+                ss << "," << tk.bitObject.getClassConfidence();
               }
               //ss << numText << "," << (*currEvent)->getForgetConstant();
 

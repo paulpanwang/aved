@@ -28,10 +28,7 @@
 
 #ifndef MBARI_VERSION_H_
 #define MBARI_VERSION_H_
-
-#define PACKAGE "salientvision"
-
-#define VERSION "1.0.0"
+ 
 #include <stdio.h>
 #include <iostream>
 
